@@ -1,0 +1,349 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Helpers
+    function isValidId(id) { 
+      return id is string && id.size() <= 128; 
+    }
+    function incoming() { 
+      return request.resource.data; 
+    }
+    function existing() { 
+      return resource.data; 
+    }
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    function isBanned() {
+      return isSignedIn() && exists(/databases/$(database)/documents/bans/$(request.auth.uid));
+    }
+    function isVerified() {
+      return isSignedIn() && !isBanned();
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Entity Validation Helpers
+    function isValidVehicle(data) {
+      return data.keys().hasAll(['marca', 'modelo', 'preco', 'createdAt', 'ownerId']) &&
+             data.marca is string && data.marca.size() > 0 &&
+             data.modelo is string && data.modelo.size() > 0 &&
+             data.preco is number &&
+             data.createdAt is number &&
+             data.ownerId is string &&
+             (!('versao' in data) || data.versao is string) &&
+             (!('anoFabricacao' in data) || data.anoFabricacao is number) &&
+             (!('anoModelo' in data) || data.anoModelo is number) &&
+             (!('km' in data) || data.km is number) &&
+             (!('cambio' in data) || data.cambio is string) &&
+             (!('combustivel' in data) || data.combustivel is string) &&
+             (!('carroceria' in data) || data.carroceria is string) &&
+             (!('cor' in data) || data.cor is string) &&
+             (!('cidade' in data) || data.cidade is string) &&
+             (!('estado' in data) || data.estado is string) &&
+             (!('anuncianteType' in data) || data.anuncianteType is string) &&
+             (!('fotos' in data) || (data.fotos is list && data.fotos.size() <= 20)) &&
+             (!('opcionais' in data) || (data.opcionais is list && data.opcionais.size() <= 50)) &&
+             (!('descricao' in data) || data.descricao is string) &&
+             (!('vendedor' in data) || data.vendedor is map) &&
+             (!('destaque' in data) || data.destaque is bool);
+    }
+
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'name', 'createdAt', 'walletVisibility']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.createdAt is number &&
+             data.walletVisibility is string && data.walletVisibility in ['private', 'performance_only', 'no_values', 'full', 'followers', 'public'] &&
+             (!('username' in data) || (data.username is string && data.username.size() <= 60)) &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 1000)) &&
+             (!('location' in data) || (data.location is string && data.location.size() <= 128)) &&
+             (!('avatar' in data) || (data.avatar is string && data.avatar.size() <= 1000)) &&
+             (!('publicKey' in data) || (data.publicKey is map)) &&
+             (!('privacySettings' in data) || data.privacySettings is map) &&
+             (!('preferences' in data) || (
+               data.preferences is map &&
+               (!('showValues' in data.preferences) || data.preferences.showValues is bool) &&
+               (!('showAssets' in data.preferences) || data.preferences.showAssets is bool) &&
+               (!('showTransactions' in data.preferences) || data.preferences.showTransactions is bool) &&
+               (!('showPerformance' in data.preferences) || data.preferences.showPerformance is bool) &&
+               (!('theme' in data.preferences) || data.preferences.theme is string) &&
+               (!('accentColor' in data.preferences) || data.preferences.accentColor is string)
+             )) &&
+             (!('followersCount' in data) || data.followersCount is number) &&
+             (!('followingCount' in data) || data.followingCount is number) &&
+             (!('profileViewsCount' in data) || data.profileViewsCount is number) &&
+             (!('aiCreditsRemaining' in data) || data.aiCreditsRemaining is number) &&
+             (!('aiCreditsLastReset' in data) || data.aiCreditsLastReset is string) &&
+             (!('score' in data) || data.score is number);
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAny(['email', 'privateKey']) &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 200)) &&
+             (!('privateKey' in data) || data.privateKey is map);
+    }
+
+    function isValidUserKyc(data) {
+      return data.keys().hasAll(['cpf', 'status', 'submittedAt']) &&
+             data.cpf is string && data.cpf.size() <= 14 &&
+             data.status is string && data.status in ['pending', 'approved', 'rejected'] &&
+             data.submittedAt is number &&
+             (!('documentUrl' in data) || data.documentUrl is string) &&
+             (!('selfieUrl' in data) || data.selfieUrl is string) &&
+             (!('processedAt' in data) || data.processedAt is number);
+    }
+
+    function isValidWallet(data) {
+      return data.keys().hasAll(['userId', 'isPublic', 'visibilityMode']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.isPublic is bool &&
+             data.visibilityMode is string && data.visibilityMode in ['full', 'performance_only', 'custom', 'no_values', 'private', 'followers', 'public'] &&
+             (!('assets' in data) || (data.assets is list && data.assets.size() <= 1000)) &&
+             (!('favorites' in data) || (data.favorites is list && data.favorites.size() <= 200 && (data.favorites.size() == 0 || data.favorites[0] is map))) &&
+             (!('updatedAt' in data) || data.updatedAt is number) &&
+             (!('publicSnapshot' in data) || data.publicSnapshot is map);
+    }
+
+    function isValidVisitor(data) {
+      return data.keys().hasAll(['visitorId', 'visitedAt', 'name']) &&
+             data.visitorId is string && data.visitedAt is number &&
+             data.name is string &&
+             (!('avatar' in data) || data.avatar is string || data.avatar == null);
+    }
+
+    function isValidChat(data) {
+       return data.keys().hasAll(['participants', 'updatedAt']) &&
+              data.participants is list && data.participants.size() == 2 &&
+              data.updatedAt is number &&
+              (!('status' in data) || (data.status is string && data.status in ['requested', 'active', 'blocked'])) &&
+              (!('requestedBy' in data) || data.requestedBy is string) &&
+              (!('lastMessage' in data) || data.lastMessage is string) &&
+              (!('lastMessageTime' in data) || data.lastMessageTime is number);
+    }
+
+    function isValidChatMessage(data) {
+       return data.keys().hasAny(['encryptedContent', 'content']) &&
+              data.keys().hasAll(['senderId', 'createdAt', 'status']) &&
+              data.senderId is string &&
+              (!('encryptedContent' in data) || (data.encryptedContent is string && data.encryptedContent.size() <= 10000) || data.encryptedContent == null) &&
+              (!('content' in data) || (data.content is string && data.content.size() <= 10000) || data.content == null) &&
+              data.createdAt is number &&
+              data.status is string && data.status in ['sent', 'delivered', 'read'];
+    }
+
+    function isValidWalletFollow(data) {
+      return data.keys().hasAll(['followerId', 'targetUserId', 'createdAt', 'status']) &&
+             data.followerId is string &&
+             data.targetUserId is string &&
+             data.createdAt is number &&
+             data.status is string && data.status in ['pending', 'accepted'] &&
+             (!('alertsEnabled' in data) || data.alertsEnabled is bool);
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['userId', 'content', 'createdAt']) &&
+             data.userId is string &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 2000 &&
+             data.createdAt is number &&
+             (!('likesCount' in data) || data.likesCount is number) &&
+             (!('repostsCount' in data) || data.repostsCount is number) &&
+             (!('isRepost' in data) || data.isRepost is bool) &&
+             (!('originalPostId' in data) || (data.originalPostId is string && data.originalPostId.size() > 0));
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['userId', 'type', 'message', 'read', 'createdAt']) &&
+             data.userId is string &&
+             data.type is string && data.type in ['follow', 'like', 'repost', 'wallet_alert', 'message', 'follow_request', 'chat_request'] &&
+             data.message is string && data.message.size() <= 500 &&
+             data.read is bool &&
+             data.createdAt is number;
+    }
+
+    function isValidContentReport(data) {
+      return data.keys().hasAll(['reporterId', 'targetId', 'contentType', 'reason', 'status', 'createdAt']) &&
+             data.reporterId is string &&
+             data.targetId is string &&
+             data.contentType is string && data.contentType in ['post', 'user'] &&
+             data.reason is string && data.reason.size() <= 1000 &&
+             data.status is string && data.status in ['pending', 'resolved', 'dismissed'] &&
+             data.createdAt is number;
+    }
+
+    function isValidMediationLocation(data) {
+      return data.keys().hasAll(['latitude', 'longitude', 'timestamp', 'userId', 'listingId']) &&
+             data.latitude is number &&
+             data.longitude is number &&
+             data.timestamp is number &&
+             data.userId is string &&
+             data.listingId is string &&
+             (!('address' in data) || data.address is string);
+    }
+
+    // Rules
+    
+    match /vehicles/{vehicleId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+                       isValidId(vehicleId) &&
+                       isValidVehicle(incoming()) &&
+                       incoming().ownerId == request.auth.uid;
+      allow update: if (isSignedIn() && existing().ownerId == request.auth.uid) &&
+                       isValidVehicle(incoming()) &&
+                       incoming().ownerId == existing().ownerId &&
+                       (!('createdAt' in incoming()) || incoming().createdAt == existing().createdAt);
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && 
+                       isValidId(userId) && 
+                       isValidUserPublic(incoming()) && 
+                       incoming().uid == userId;
+      allow update: if isOwner(userId) && 
+                       isValidUserPublic(incoming()) && 
+                       incoming().uid == existing().uid && 
+                       (!('createdAt' in incoming()) || incoming().createdAt == existing().createdAt) &&
+                       (incoming().diff(existing()).affectedKeys().hasOnly(['name', 'username', 'bio', 'location', 'avatar', 'walletVisibility', 'privacySettings', 'preferences', 'publicKey', 'kycStatus', 'isVerified', 'followersCount', 'followingCount', 'profileViewsCount', 'score', 'aiCreditsRemaining', 'aiCreditsLastReset']));
+
+      match /private/info {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && 
+                         isValidUserPrivate(incoming());
+        allow update: if isOwner(userId) && 
+                         isValidUserPrivate(incoming()) &&
+                         (incoming().diff(existing()).affectedKeys().hasOnly(['email', 'privateKey']));
+      }
+
+      match /private/kyc {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && 
+                         isValidUserKyc(incoming());
+        allow update: if isOwner(userId) && 
+                         isValidUserKyc(incoming()) &&
+                         (incoming().diff(existing()).affectedKeys().hasOnly(['cpf', 'documentUrl', 'selfieUrl', 'status', 'submittedAt', 'processedAt']));
+      }
+
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId);
+        allow update: if isOwner(userId) && 
+                         incoming().read == true &&
+                         (incoming().diff(existing()).affectedKeys().hasOnly(['read']));
+        allow delete: if isOwner(userId);
+        allow create: if isSignedIn() && isValidNotification(incoming());
+      }
+
+      match /visitors/{visitorId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isSignedIn() && 
+                                 isValidVisitor(incoming()) && 
+                                 incoming().visitorId == request.auth.uid;
+      }
+
+      match /mediacao_localizacao/{listingId} {
+        allow read: if isAdmin();
+        allow create: if isOwner(userId) && 
+                         isValidMediationLocation(incoming()) &&
+                         incoming().userId == userId &&
+                         incoming().listingId == listingId;
+        allow delete: if isOwner(userId);
+        allow update: if false;
+      }
+    }
+
+    match /wallets/{userId} {
+      allow read: if isSignedIn() && (existing().isPublic == true || existing().userId == request.auth.uid);
+      allow create: if isOwner(userId) && 
+                       isValidId(userId) && 
+                       isValidWallet(incoming()) && 
+                       incoming().userId == userId;
+      allow update: if isOwner(userId) && 
+                       isValidWallet(incoming()) && 
+                       incoming().userId == existing().userId &&
+                       (incoming().diff(existing()).affectedKeys().hasOnly(['assets', 'isPublic', 'visibilityMode', 'updatedAt', 'publicSnapshot', 'favorites']));
+    }
+
+    match /follows/{followId} {
+      allow read: if isSignedIn();
+      allow create: if isVerified() && 
+                       isValidId(followId) &&
+                       isValidWalletFollow(incoming()) &&
+                       incoming().followerId == request.auth.uid &&
+                       exists(/databases/$(database)/documents/users/$(incoming().targetUserId));
+      allow update: if isVerified() && 
+                       (
+                         (isOwner(existing().followerId) && incoming().diff(existing()).affectedKeys().hasOnly(['alertsEnabled'])) ||
+                         (isOwner(existing().targetUserId) && incoming().diff(existing()).affectedKeys().hasOnly(['status']))
+                       );
+      allow delete: if isVerified() && (existing().followerId == request.auth.uid || existing().targetUserId == request.auth.uid);
+    }
+    
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && (resource == null || request.auth.uid in existing().participants);
+      allow create: if isSignedIn() && 
+                       isValidChat(incoming()) &&
+                       request.auth.uid in incoming().participants;
+      allow update: if isSignedIn() && 
+                       request.auth.uid in existing().participants &&
+                       isValidChat(incoming());
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && 
+                       (
+                         !exists(/databases/$(database)/documents/chats/$(chatId)) ||
+                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
+                       );
+        allow create: if isSignedIn() && 
+                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants &&
+                         isValidChatMessage(incoming()) &&
+                         incoming().senderId == request.auth.uid;
+        allow update: if isSignedIn() && 
+                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['status']) &&
+                         incoming().status in ['delivered', 'read'];
+      }
+    }
+
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isVerified() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().userId == request.auth.uid &&
+                       exists(/databases/$(database)/documents/users/$(incoming().userId));
+      allow update: if isVerified() &&
+                       isValidPost(incoming()) &&
+                       (
+                         (isOwner(existing().userId) && incoming().content != existing().content && incoming().diff(existing()).affectedKeys().hasOnly(['content'])) ||
+                         (incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'repostsCount']))
+                       );
+      allow delete: if isVerified() && existing().userId == request.auth.uid;
+
+      match /likes/{userId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
+    }
+
+    match /reports/{reportId} {
+      allow create: if isVerified() && 
+                       isValidContentReport(incoming()) &&
+                       incoming().reporterId == request.auth.uid &&
+                       incoming().status == 'pending';
+      allow read, update, delete: if false; // Only manageable by admin via backend
+    }
+  }
+}

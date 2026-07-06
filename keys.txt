@@ -1,0 +1,187 @@
+src/components/WalletFollow.tsx:387:                  key={wallet.id} 
+src/components/WalletFollow.tsx:441:                <PostCard key={post.id} post={post} onProfileClick={handleProfileClick} />
+src/components/WalletFollow.tsx:461:                    key={wallet.id} 
+src/components/WalletFollow.tsx:515:                  key={wallet.id} 
+src/components/WalletFollow.tsx:639:                  <PostCard key={post.id} post={post} onProfileClick={handleProfileClick} />
+src/components/shared/AssetHoverMenu.tsx:133:                  key={option.id}
+src/components/shared/AssetComparisonChart.tsx:181:                key={range}
+src/components/shared/AssetComparisonChart.tsx:204:          <div key={c.ticker} className="flex items-center gap-1.5 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+src/components/shared/AssetComparisonChart.tsx:254:              return <Line key={c.ticker} type="monotone" dataKey={c.ticker} stroke={c.color} strokeWidth={2} dot={false} />;
+src/components/calculators/CompoundInterest.tsx:773:                      <th key={idx} className="px-2 py-2 sm:px-4 sm:py-4 text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center bg-slate-50/50 dark:bg-slate-800/30">{data.months < 12 ? `${data.months}m` : `${data.months/12}a`}</th>
+src/components/calculators/CompoundInterest.tsx:784:                        <td key={idx} className="px-2 py-2.5 sm:px-4 sm:py-6 text-center group relative">
+src/components/calculators/CompoundInterest.tsx:804:                        <td key={idx} className="px-2 py-2.5 sm:px-4 sm:py-6 text-center group relative">
+src/components/calculators/CompoundInterest.tsx:905:                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 contrast:hover:bg-slate-700/50 transition-colors group dark:bg-slate-800 ">
+src/components/calculators/MagicNumberCalculator.tsx:261:                        key={period}
+src/components/calculators/BazinCalculator.tsx:249:                        key={`${item.ticker}-${index}`}
+src/components/calculators/VehicleCalculator.tsx:73:                key={option.codigo}
+src/components/calculators/FixedIncomeCalculator.tsx:496:                  <div key={item.title} className={`p-4 rounded-xl border relative ${isWinner ? item.bg + ' ' + item.border : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>
+src/components/calculators/FixedIncomeCalculator.tsx:631:                    <tr key={row.month} className="border-b border-slate-50 dark:border-slate-800  last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 contrast:hover:bg-slate-700/50 group transition-colors dark:bg-slate-800 ">
+src/components/calculators/MEICalculator.tsx:695:                  <div key={item.name} className="relative">
+src/components/calculators/MEICalculator.tsx:716:                key={res.regime}
+src/components/calculators/MEICalculator.tsx:778:                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+src/components/calculators/MEICalculator.tsx:791:                      <div key={item.name} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl dark:bg-slate-800 ">
+src/components/calculators/MEICalculator.tsx:816:                    <li key={idx} className="flex items-start gap-3">
+src/components/calculators/BuyAndHold.tsx:421:                  <tr key={index} className="border-b border-border/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+src/components/calculators/FinancingCalculator.tsx:572:                      <option key={bank.bank} value={bank.bank}>
+src/components/calculators/FinancingCalculator.tsx:1234:                  key={bank.bank}
+src/components/calculators/TesouroDiretoCalculator.tsx:571:                      <tr key={row.month} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 contrast:hover:bg-slate-700/50 transition-colors dark:bg-slate-800">
+src/components/calculators/SolarCalculator.tsx:331:                        key={name}
+src/components/calculators/SolarCalculator.tsx:378:                    key={type}
+src/components/calculators/IpcaCalculatorModal.tsx:256:                    key={type}
+src/components/calculators/IpcaCalculatorModal.tsx:276:                    <option key={r.id} value={r.id}>{r.name}</option>
+src/components/calculators/IpcaCalculatorModal.tsx:308:                        <option key={s.data} value={s.data}>{s.data}</option>
+src/components/calculators/IpcaCalculatorModal.tsx:320:                        <option key={s.data} value={s.data}>{s.data}</option>
+src/components/calculators/GrahamCalculator.tsx:753:                          key={`${item.ticker}-${index}`}
+src/components/calculators/GrahamCalculator.tsx:859:                  <div key={record.id} className="p-5 bg-card border border-border rounded-[1.5rem] hover:border-indigo-500/40 transition-all group relative animate-in fade-in zoom-in-95">
+src/components/calculators/GrahamCalculator.tsx:939:                key={stockData.ticker}
+src/components/calculators/GrahamCalculator.tsx:1049:                          <div key={idx} className="p-3 sm:p-4 bg-muted/20 border border-border rounded-xl sm:rounded-2xl flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] hover:border-indigo-500/30 transition-colors">
+src/components/calculators/GrahamCalculator.tsx:1070:                    key={i}
+src/components/calculators/GrahamCalculator.tsx:1157:                          key={p}
+src/components/calculators/GrahamCalculator.tsx:1260:                          <th key={i} scope="col" className="py-2.5 px-2 text-center text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+src/components/calculators/GrahamCalculator.tsx:1271:                          <td key={i} className="py-3 px-2 text-center font-black text-[10px] sm:text-xs">
+src/components/calculators/GrahamCalculator.tsx:1289:                          <td key={i} className="py-3 px-2 text-center font-black text-[10px] sm:text-xs">
+src/components/calculators/GrahamCalculator.tsx:1352:                      <tr key={i} className="hover:bg-muted/5 transition-colors">
+src/components/calculators/GrahamCalculator.tsx:1399:                 <div key={i} className="flex flex-col p-3 sm:p-5 bg-muted/10 sm:bg-transparent rounded-2xl border border-border/50 sm:border-0 hover:bg-muted/30 sm:hover:bg-slate-50 dark:sm:hover:bg-slate-800/10 transition-colors group/indicator">
+src/components/calculators/BarsiCalculator.tsx:212:                      key={`${item.ticker}-${index}`}
+src/components/calculators/FinancingTableModal.tsx:225:                        <tr key={row.month} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+src/components/SetoresRanking.tsx:67:      key={asset.stock} 
+src/components/SetoresRanking.tsx:109:        <div key={sector.sector} className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+src/components/real-estate-crm/NearbyPropertiesMap.tsx:225:              <Marker key={prop.id} position={[prop.lat, prop.lng]} icon={houseIcon}>
+src/components/real-estate-crm/PropertiesAdsView.tsx:229:                key={filter}
+src/components/real-estate-crm/PropertiesAdsView.tsx:249:            key={prop.id} 
+src/components/real-estate-crm/PropertiesAdsView.tsx:401:                          <span key={tag} className="px-3 py-1 bg-accent text-foreground rounded-lg text-xs font-bold">
+src/components/real-estate-crm/PropertyRadar.tsx:239:                    key={p.id}
+src/components/real-estate-crm/PropertyRadar.tsx:347:                    key={item.id}
+src/components/real-estate-crm/PropertyRadar.tsx:386:              key={notif.id}
+src/components/real-estate-crm/RealEstateCRM.tsx:158:            key={tab.id}
+src/components/FundamentalAnalysis.tsx:263:              <li key={idx} className="bg-white/80 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 flex gap-3 text-muted-foreground text-sm font-medium">
+src/components/FundamentalAnalysis.tsx:294:          <div key={idx} className="bg-card border border-border rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col h-full">
+src/components/FundamentalAnalysis.tsx:301:                <div key={i} className="flex justify-between items-start gap-4 p-3 rounded-lg bg-muted/50">
+src/components/FundamentalAnalysis.tsx:336:              <div key={i} className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-800/30">
+src/components/FundamentalAnalysis.tsx:377:             <div key={i} className={cn("px-4 py-3 rounded-xl border flex items-center gap-3 bg-card shadow-sm flex-1 min-w-[250px]", 
+src/components/FundamentalAnalysis.tsx:970:                        key={`${item.ticker}-${index}`}
+src/components/FundamentalAnalysis.tsx:1215:                  <div key={idx} className="p-4 bg-white rounded-xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col gap-3 hover:border-emerald-500/50 transition-colors">
+src/components/social/ProfileVisitors.tsx:54:              key={visitor.visitorId + visitor.visitedAt}
+src/components/social/ProfileFollowers.tsx:117:                  <div key={req.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
+src/components/social/ProfileFollowers.tsx:166:                  <div key={f.id} className="flex items-center justify-between p-3 sm:p-4 bg-card border border-border rounded-2xl hover:border-emerald-500/30 transition-colors">
+src/components/social/NotificationCenter.tsx:86:            key="dropdown"
+src/components/social/NotificationCenter.tsx:102:                      key={notif.id}
+src/components/social/MessagesView.tsx:254:                key={chat.id}
+src/components/social/MessagesView.tsx:380:                  <div key={msg.id} className={cn("flex w-full mb-3", isMine ? "justify-end" : "justify-start gap-2")}>
+src/components/Dashboard.tsx:301:            key={card.id}
+src/components/Dashboard.tsx:342:              <div key={item.id} className="flex gap-3 group cursor-default">
+src/components/Dashboard.tsx:384:                     key={type.id}
+src/components/Dashboard.tsx:409:                <div key={stock.ticker} className="p-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
+src/components/Dashboard.tsx:440:                <div key={i} className="p-3 flex items-center justify-between animate-pulse">
+src/components/Dashboard.tsx:462:                <div key={stock.ticker} className="p-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
+src/components/Dashboard.tsx:493:                <div key={i} className="p-3 flex items-center justify-between animate-pulse">
+src/components/negotiations/NegotiationsDashboard.tsx:155:            <div key={i} className="p-5 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-sm">
+src/components/negotiations/NegotiationsDashboard.tsx:233:                    <tr key={item.id} className="hover:bg-accent/30 transition-colors group">
+src/components/RecordingStudio.tsx:151:                        <div key={i} className="flex-1 bg-indigo-500 rounded-full" style={{ height: `${Math.max(20, Math.random() * 100)}%` }} />
+src/components/BirthdatePicker.tsx:83:              <option key={d} value={d}>
+src/components/BirthdatePicker.tsx:100:              <option key={m.value} value={m.value}>
+src/components/BirthdatePicker.tsx:117:              <option key={y} value={y}>
+src/components/kyc/KycVerification.tsx:102:          <div key={label} className={`p-4 rounded-2xl border ${step >= idx + 1 ? 'border-primary bg-primary/5' : 'border-border bg-card'} transition-all`}>
+src/components/FiiAnalysis.tsx:435:                        key={`${item.ticker}-${index}`}
+src/components/FiiAnalysis.tsx:622:                          <div key={idx} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 dark:bg-slate-800 dark:border-slate-700 flex flex-col gap-3">
+src/components/FiiAnalysis.tsx:756:                          <li key={idx} className="flex items-start gap-2">
+src/components/Profile.tsx:266:                key="overview"
+src/components/Profile.tsx:335:                key="visitors"
+src/components/Profile.tsx:347:                key="requests"
+src/components/Profile.tsx:359:                key="kyc"
+src/components/Profile.tsx:371:                key="privacy"
+src/components/Profile.tsx:498:                key="appearance"
+src/components/Profile.tsx:517:                            key={color}
+src/components/Profile.tsx:558:                key="account"
+src/components/Pesquisa.tsx:390:        key={currentSrc}
+src/components/Pesquisa.tsx:1472:                key={i} 
+src/components/Pesquisa.tsx:1524:                          key={`${item.ticker}-${index}`}
+src/components/Pesquisa.tsx:1592:                key={s}
+src/components/Pesquisa.tsx:1637:              key={i}
+src/components/Pesquisa.tsx:1745:                        <option key={s} value={s}>{s}</option>
+src/components/Pesquisa.tsx:1978:                          key={i} 
+src/components/Pesquisa.tsx:2150:                    key={cat}
+src/components/Pesquisa.tsx:2179:                key={idx} 
+src/components/Pesquisa.tsx:2206:                          key={i}
+src/components/Pesquisa.tsx:2478:                <div key={i} className="bg-card border border-border rounded-xl shadow-sm overflow-hidden min-w-[140px] flex-1 max-w-[220px]">
+src/components/Pesquisa.tsx:2503:                <div key={i} className="bg-card border border-border p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group overflow-hidden">
+src/components/Pesquisa.tsx:2541:                  key={tab}
+src/components/Pesquisa.tsx:2589:                          <div key={i} className="flex items-center gap-4 p-4 border border-border rounded-xl bg-card hover:bg-muted/50 transition-colors">
+src/components/Pesquisa.tsx:2612:                        <div key={i} className="bg-muted p-4 rounded-xl border border-border group hover:border-primary/50 transition-colors">
+src/components/Pesquisa.tsx:2633:                        <div key={i} className="bg-muted p-4 rounded-xl border border-border group hover:border-primary/50 transition-colors">
+src/components/Pesquisa.tsx:2694:                        <div key={i} className="bg-muted p-4 rounded-xl border border-border group hover:border-primary/30 transition-all">
+src/components/Pesquisa.tsx:2717:                        <div key={i} className="bg-muted p-4 rounded-xl border border-border">
+src/components/Pesquisa.tsx:2736:                        <div key={i} className="bg-muted p-4 rounded-xl border border-border">
+src/components/Pesquisa.tsx:2766:                            <div key={i} className="bg-background p-4 rounded-lg border border-emerald-500/20 flex justify-between items-center">
+src/components/Pesquisa.tsx:2817:                          <div key={m} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
+src/components/Pesquisa.tsx:2845:                              <tr key={i} className="text-sm hover:bg-muted transition-colors">
+src/components/Pesquisa.tsx:2886:                              <tr key={`stock-${i}`} className="text-sm hover:bg-muted transition-colors">
+src/components/Pesquisa.tsx:2923:                          key={i} 
+src/components/Pesquisa.tsx:3003:                        <div key={idx} className="p-6 bg-card rounded-3xl border border-border flex flex-col gap-4 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 transition-all group">
+src/components/Pesquisa.tsx:3126:                          key={selectedDocUrl} // força re-render ao trocar documento
+src/components/ScreenerAvancado.tsx:319:              key={m.id}
+src/components/ScreenerAvancado.tsx:466:                    <tr key={idx} className="hover:bg-muted/20 transition-colors">
+src/components/MarketComposition.tsx:156:          <li key={`item-${index}`} className="flex items-center gap-2">
+src/components/MarketComposition.tsx:233:                  key={cat}
+src/components/MarketComposition.tsx:279:                    key={`cell-${index}`} 
+src/components/PublicPortfolio.tsx:528:                  key="assets"
+src/components/PublicPortfolio.tsx:576:                            <React.Fragment key={category}>
+src/components/PublicPortfolio.tsx:593:                                  key={`${asset.ticker}-${idx}`}
+src/components/PublicPortfolio.tsx:681:                  key="dividends"
+src/components/PublicPortfolio.tsx:695:                              <div key={i} className="flex justify-between items-center p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-all">
+src/components/PublicPortfolio.tsx:732:                  key="wallets"
+src/components/PublicPortfolio.tsx:759:                                    <Cell key={`cell-${index}`} fill={['#10B981', '#3B82F6', '#F59E0B', '#6366F1'][index % 4]} />
+src/components/PublicPortfolio.tsx:793:                                    <Cell key={`cell-${index}`} fill={['#EC4899', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'][index % 5]} />
+src/components/PublicPortfolio.tsx:806:                  key="discussions"
+src/components/PublicPortfolio.tsx:846:                        <div key={comment.id} className="flex gap-4">
+src/components/PublicPortfolio.tsx:914:                     <div key={`${asset.ticker}-${idx}`} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-xl transition-colors">
+src/components/InvestmentPortfolio.tsx:1003:                      <Cell key={`cell-${index}`} fill={ASSET_COLORS[entry.name as AssetClass] || '#64748b'} />
+src/components/InvestmentPortfolio.tsx:1016:                <div key={cat.name} className="flex items-center justify-between">
+src/components/InvestmentPortfolio.tsx:1041:                  <div key={catName} className="bg-background/50 backdrop-blur-sm border border-border rounded-3xl p-5 shadow-sm transition-all hover:border-primary/30">
+src/components/InvestmentPortfolio.tsx:1102:                                <tr key={`${pos.ticker}-${idx}`} className="border-b border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+src/components/InvestmentPortfolio.tsx:1164:                            <div key={`${pos.ticker}-${idx}`} className="bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
+src/components/InvestmentPortfolio.tsx:1282:                         <div key={`${ticker}-${i}`} className="flex items-center gap-1.5 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+src/components/InvestmentPortfolio.tsx:1301:                         return <Line key={`${ticker}-${i}`} type="monotone" dataKey={ticker} stroke={colors[i]} strokeWidth={3} dot={{ r: 4, fill: colors[i], strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />;
+src/components/InvestmentPortfolio.tsx:1356:                    key={p}
+src/components/InvestmentPortfolio.tsx:1395:                          key={`${s.ticker}-${idx}`}
+src/components/InvestmentPortfolio.tsx:1428:                <div key={ticker} className="flex items-center gap-2 bg-muted border border-border px-3 py-1.5 rounded-full group">
+src/components/InvestmentPortfolio.tsx:1452:                    <div key={analysis.id} className="flex items-center gap-2 bg-card border border-border px-3 py-1.5 rounded-xl hover:border-primary transition-all group cursor-pointer" onClick={() => loadAnalysis(analysis)}>
+src/components/InvestmentPortfolio.tsx:1480:                      key={ticker} 
+src/components/InvestmentPortfolio.tsx:1553:                   <tr key={t.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors text-sm">
+src/components/InvestmentPortfolio.tsx:1636:                <div key={month} className={cn(
+src/components/InvestmentPortfolio.tsx:1653:                          <div key={a.ticker} className={cn(
+src/components/InvestmentPortfolio.tsx:1717:                    {Object.keys(ASSET_COLORS).map(ac => <option key={ac} value={ac}>{ac}</option>)}
+src/components/GlobalAudioPlayer.tsx:76:              key="maximized"
+src/components/GlobalAudioPlayer.tsx:250:                                  <option key={v.id} value={v.id}>{v.name}</option>
+src/components/GlobalAudioPlayer.tsx:262:                                  key={s.id}
+src/components/GlobalAudioPlayer.tsx:285:              key="minimized"
+src/components/marketplace/Marketplace.tsx:275:                key={option.codigo}
+src/components/marketplace/Marketplace.tsx:658:                                 <div key={idx} className="relative w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0 overflow-hidden border border-border group">
+src/components/marketplace/Marketplace.tsx:688:                              <div key={idx} className="flex gap-2 mb-2 items-center">
+src/components/marketplace/Marketplace.tsx:982:                           key={p}
+src/components/marketplace/Marketplace.tsx:1048:                    key={idx} 
+src/components/marketplace/Marketplace.tsx:1166:                <li key={idx} className="flex items-start gap-2 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+src/components/marketplace/Marketplace.tsx:1283:                <div key={msg.id} className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300 text-xs p-3 rounded-lg text-center font-medium mx-4 flex items-start gap-2">
+src/components/marketplace/Marketplace.tsx:1291:              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+src/components/marketplace/Marketplace.tsx:1294:                    <img key={`img-${msg.id}`} src={msg.imageUrl} alt="Anexo" className="rounded-xl w-full max-w-[200px] object-cover mb-2" />
+src/components/marketplace/Marketplace.tsx:1404:            key="home"
+src/components/marketplace/Marketplace.tsx:1482:                    <button key={m.nome} className="bg-white dark:bg-card border border-border px-5 py-3 sm:px-6 sm:py-3 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm hover:shadow-md hover:border-emerald-500/50 transition-all min-w-[120px]">
+src/components/marketplace/Marketplace.tsx:1569:                      <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden animate-pulse">
+src/components/marketplace/Marketplace.tsx:1585:                      <VehicleCard key={v.id} vehicle={v} onClick={() => handleVehicleClick(v)} />
+src/components/marketplace/Marketplace.tsx:1646:            key="detail"
+src/components/WalletManager.tsx:659:                        <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/WalletManager.tsx:672:                  <div key={cat.name} className="flex items-center justify-between group cursor-pointer">
+src/components/WalletManager.tsx:699:                    key={idx}
+src/components/WalletManager.tsx:774:                  <div key={goal.id} className="space-y-2">
+src/components/WalletManager.tsx:812:                <div key={t.id} className="flex items-center justify-between group gap-2">
+src/components/WalletManager.tsx:853:                      <li key={i} className="flex justify-between text-sm">
+src/components/WalletManager.tsx:864:                      <li key={i} className="text-sm text-rose-300">
+src/components/RiskAlert.tsx:193:                      <div key={i} className={cn("p-4 rounded-2xl border transition-colors", factorBorder)}>
+src/contexts/AudioPlayerContext.tsx:720:                    <option key={v.id} value={v.id}>{v.name}</option>
+src/contexts/AudioPlayerContext.tsx:725:                    <option key={v.id} value={v.id}>{v.name}</option>
+src/contexts/AudioPlayerContext.tsx:730:                    <option key={v.id} value={v.id}>{v.name}</option>
+src/contexts/AudioPlayerContext.tsx:742:                    key={s.id}
+src/App.tsx:480:            <div key={groupIndex} className="space-y-1">
+src/App.tsx:504:                        key={item.id}
+src/App.tsx:603:                    <div key={idx} className="flex items-center gap-2 text-[11px] font-mono whitespace-nowrap">
+src/App.tsx:743:                key={item.id}

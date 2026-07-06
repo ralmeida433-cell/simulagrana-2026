@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wallet-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Glow -->
+  <circle cx="256" cy="256" r="240" fill="url(#wallet-grad)" opacity="0.1" />
+  
+  <!-- Wallet Body -->
+  <rect x="100" y="160" width="312" height="192" rx="20" fill="url(#wallet-grad)" />
+  <path d="M412 210H330C313.4 210 300 223.4 300 240V272C300 288.6 313.4 302 330 302H412V210Z" fill="#065F46" />
+  <circle cx="335" cy="256" r="10" fill="white" />
+  
+  <!-- Chart Line -->
+  <path d="M140 280 L200 220 L260 250 L340 140" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,12 @@
+{
+  "name": "Remix: SimulaGrana 1.3.0",
+  "description": "Terminal de Decisão Inteligente para Investimentos e Finanças. Plataforma avançada de análise fundamentalista com ticker em tempo real, heatmap de mercado, scanner de oportunidades e recomendações de estratégia baseadas em IA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

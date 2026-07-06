@@ -1,0 +1,581 @@
+{
+  "entities": {
+    "UserPublic": {
+      "title": "User Public Profile",
+      "description": "Public profile data for a user.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "walletVisibility": {
+          "type": "string",
+          "enum": [
+            "private",
+            "performance_only",
+            "no_values",
+            "full",
+            "followers"
+          ]
+        },
+        "kycStatus": {
+          "type": "string",
+          "enum": [
+            "none",
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "isVerified": {
+          "type": "boolean"
+        },
+        "publicKey": {
+          "type": "object"
+        },
+        "privacySettings": {
+          "type": "object"
+        },
+        "preferences": {
+          "type": "object"
+        },
+        "followersCount": {
+          "type": "number"
+        },
+        "followingCount": {
+          "type": "number"
+        },
+        "profileViewsCount": {
+          "type": "number"
+        },
+        "aiCreditsRemaining": {
+          "type": "number"
+        },
+        "aiCreditsLastReset": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "uid",
+        "name",
+        "createdAt",
+        "walletVisibility"
+      ]
+    },
+    "UserPrivate": {
+      "title": "User Private Data",
+      "description": "Strictly confidential PII.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ]
+    },
+    "UserKyc": {
+      "title": "User KYC Data",
+      "description": "Verification data and documents for a user.",
+      "type": "object",
+      "properties": {
+        "cpf": {
+          "type": "string"
+        },
+        "documentUrl": {
+          "type": "string"
+        },
+        "selfieUrl": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "submittedAt": {
+          "type": "number"
+        },
+        "processedAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "cpf",
+        "status",
+        "submittedAt"
+      ]
+    },
+    "Wallet": {
+      "title": "Wallet Configuration",
+      "description": "Configuration and assets of a user's wallet.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "assets": {
+          "type": "array"
+        },
+        "favorites": {
+          "type": "array"
+        },
+        "isPublic": {
+          "type": "boolean"
+        },
+        "visibilityMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "performance_only",
+            "custom"
+          ]
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "userId",
+        "isPublic",
+        "visibilityMode"
+      ]
+    },
+    "WalletFollow": {
+      "title": "Follow Relation",
+      "type": "object",
+      "properties": {
+        "followerId": {
+          "type": "string"
+        },
+        "targetUserId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "blocked"
+          ]
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "followerId",
+        "targetUserId",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Post": {
+      "title": "Social Post",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "likesCount": {
+          "type": "number"
+        },
+        "repostsCount": {
+          "type": "number"
+        },
+        "isRepost": {
+          "type": "boolean"
+        },
+        "originalPostId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId",
+        "content",
+        "createdAt"
+      ]
+    },
+    "Notification": {
+      "title": "User Notification",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "follow",
+            "follow_request",
+            "chat_request",
+            "like",
+            "repost",
+            "wallet_alert",
+            "profile_view",
+            "message"
+          ]
+        },
+        "fromUserId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "read": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "metadata": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "userId",
+        "type",
+        "message",
+        "read",
+        "createdAt"
+      ]
+    },
+    "PostLike": {
+      "title": "Post Like",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "userId",
+        "createdAt"
+      ]
+    },
+    "ContentReport": {
+      "title": "Content Report for Moderation",
+      "type": "object",
+      "properties": {
+        "reporterId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string",
+          "enum": [
+            "post",
+            "user"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "resolved",
+            "dismissed"
+          ]
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "reporterId",
+        "targetId",
+        "contentType",
+        "reason",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Chat": {
+      "title": "Chat Session",
+      "type": "object",
+      "properties": {
+        "participants": {
+          "type": "array"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "requested",
+            "active",
+            "blocked"
+          ]
+        },
+        "requestedBy": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "number"
+        },
+        "lastMessage": {
+          "type": "string"
+        },
+        "lastMessageTime": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "participants",
+        "updatedAt"
+      ]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "type": "object",
+      "properties": {
+        "senderId": {
+          "type": "string"
+        },
+        "encryptedContent": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "sent",
+            "delivered",
+            "read"
+          ]
+        }
+      },
+      "required": [
+        "senderId",
+        "encryptedContent",
+        "createdAt",
+        "status"
+      ]
+    },
+    "ProfileView": {
+      "title": "Profile View Log",
+      "type": "object",
+      "properties": {
+        "viewerId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "viewedAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "viewerId",
+        "targetId",
+        "viewedAt"
+      ]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "A vehicle listing in the marketplace.",
+      "type": "object",
+      "properties": {
+        "marca": {
+          "type": "string"
+        },
+        "modelo": {
+          "type": "string"
+        },
+        "versao": {
+          "type": "string"
+        },
+        "anoFabricacao": {
+          "type": "number"
+        },
+        "anoModelo": {
+          "type": "number"
+        },
+        "preco": {
+          "type": "number"
+        },
+        "km": {
+          "type": "number"
+        },
+        "cambio": {
+          "type": "string"
+        },
+        "combustivel": {
+          "type": "string"
+        },
+        "carroceria": {
+          "type": "string"
+        },
+        "cor": {
+          "type": "string"
+        },
+        "cidade": {
+          "type": "string"
+        },
+        "estado": {
+          "type": "string"
+        },
+        "anuncianteType": {
+          "type": "string"
+        },
+        "fotos": {
+          "type": "array"
+        },
+        "destaque": {
+          "type": "boolean"
+        },
+        "opcionais": {
+          "type": "array"
+        },
+        "descricao": {
+          "type": "string"
+        },
+        "vendedor": {
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "ownerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "marca",
+        "modelo",
+        "preco",
+        "createdAt",
+        "ownerId"
+      ]
+    },
+    "MediationLocation": {
+      "title": "Mediation Location",
+      "description": "Exact GPS coordinates for mediation purposes, accessible only by admins.",
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        },
+        "address": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "listingId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude",
+        "timestamp",
+        "userId",
+        "listingId"
+      ]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "UserPublic",
+      "description": "User public profiles. Accessible by everyone depending on privacy."
+    },
+    "users/{userId}/private/info": {
+      "schema": "UserPrivate",
+      "description": "Private subset of user profile containing PII."
+    },
+    "users/{userId}/private/kyc": {
+      "schema": "UserKyc",
+      "description": "KYC verification data. Highly sensitive, accessed only for compliance."
+    },
+    "users/{userId}/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Real-time user notifications."
+    },
+    "wallets/{userId}": {
+      "schema": "Wallet",
+      "description": "Wallet data. Writes restricted to owner."
+    },
+    "follows/{followId}": {
+      "schema": "WalletFollow",
+      "description": "Follow graph entries mapping one user to another (followerId_targetUserId)."
+    },
+    "posts/{postId}": {
+      "schema": "Post",
+      "description": "Social posts by users."
+    },
+    "posts/{postId}/likes/{userId}": {
+      "schema": "PostLike",
+      "description": "Tracks which users liked the post."
+    },
+    "reports/{reportId}": {
+      "schema": "ContentReport",
+      "description": "Reports for content moderation."
+    },
+    "chats/{chatId}": {
+      "schema": "Chat",
+      "description": "Chat sessions between users."
+    },
+    "chats/{chatId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages inside a chat."
+    },
+    "profileViews/{viewId}": {
+      "schema": "ProfileView",
+      "description": "Logs of who viewed whose profile"
+    },
+    "vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Marketplace vehicle listings. Readable by anyone, writable by owners."
+    },
+    "users/{userId}/mediacao_localizacao/{listingId}": {
+      "schema": "MediationLocation",
+      "description": "Exact GPS location of ads for mediation. Restricted to admins."
+    }
+  }
+}

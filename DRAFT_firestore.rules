@@ -1,0 +1,145 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Helpers
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { 
+      return request.resource.data; 
+    }
+    function existing() { 
+      return resource.data; 
+    }
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    function isOwner(userId) {
+      return isVerified() && request.auth.uid == userId;
+    }
+
+    // Entity Validation Helpers
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'name', 'createdAt', 'walletVisibility']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.createdAt is number &&
+             data.walletVisibility is string && data.walletVisibility in ['private', 'performance_only', 'no_values', 'full'] &&
+             (!('avatar' in data) || (data.avatar is string && data.avatar.size() <= 500)) &&
+             (!('preferences' in data) || (
+               data.preferences is map &&
+               (!('showValues' in data.preferences) || data.preferences.showValues is bool) &&
+               (!('showAssets' in data.preferences) || data.preferences.showAssets is bool) &&
+               (!('showTransactions' in data.preferences) || data.preferences.showTransactions is bool) &&
+               (!('showPerformance' in data.preferences) || data.preferences.showPerformance is bool)
+             ));
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['email']) &&
+             data.email is string && data.email.size() <= 200;
+    }
+
+    function isValidWallet(data) {
+      return data.keys().hasAll(['userId', 'isPublic', 'visibilityMode']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.isPublic is bool &&
+             data.visibilityMode is string && data.visibilityMode in ['full', 'performance_only', 'custom'] &&
+             (!('assets' in data) || (data.assets is list && data.assets.size() <= 1000)) &&
+             (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
+    function isValidWalletFollow(data) {
+      return data.keys().hasAll(['followerId', 'targetUserId', 'createdAt']) &&
+             data.followerId is string &&
+             data.targetUserId is string &&
+             data.createdAt is number;
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['userId', 'content', 'createdAt']) &&
+             data.userId is string &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 2000 &&
+             data.createdAt is number &&
+             (!('likesCount' in data) || data.likesCount is number);
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && 
+                       isValidId(userId) && 
+                       isValidUserPublic(incoming()) && 
+                       incoming().uid == userId && 
+                       (!('createdAt' in incoming()) || incoming().createdAt == request.time.toMillis()) &&
+                       incoming().keys().size() <= 6;
+      allow update: if isOwner(userId) && 
+                       isValidUserPublic(incoming()) && 
+                       incoming().uid == existing().uid && 
+                       incoming().createdAt == existing().createdAt &&
+                       (incoming().diff(existing()).affectedKeys().hasOnly(['name', 'avatar', 'walletVisibility', 'preferences']));
+
+      match /private/info {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && 
+                         isValidUserPrivate(incoming()) &&
+                         incoming().keys().size() == 1;
+        allow update: if isOwner(userId) && 
+                         isValidUserPrivate(incoming()) &&
+                         (incoming().diff(existing()).affectedKeys().hasOnly(['email']));
+      }
+    }
+
+    match /wallets/{userId} {
+      allow read: if isSignedIn() && (existing().isPublic == true || existing().userId == request.auth.uid);
+      allow create: if isOwner(userId) && 
+                       isValidId(userId) && 
+                       isValidWallet(incoming()) && 
+                       incoming().userId == userId &&
+                       incoming().keys().size() <= 5;
+      allow update: if isOwner(userId) && 
+                       isValidWallet(incoming()) && 
+                       incoming().userId == existing().userId &&
+                       (incoming().diff(existing()).affectedKeys().hasOnly(['assets', 'isPublic', 'visibilityMode', 'updatedAt']));
+    }
+
+    match /follows/{followId} {
+      allow list: if isSignedIn() && (resource.data.followerId == request.auth.uid || resource.data.targetUserId == request.auth.uid);
+      allow get: if isSignedIn() && (existing().followerId == request.auth.uid || existing().targetUserId == request.auth.uid);
+      allow create: if isVerified() && 
+                       isValidId(followId) &&
+                       isValidWalletFollow(incoming()) &&
+                       incoming().followerId == request.auth.uid &&
+                       exists(/databases/$(database)/documents/users/$(incoming().targetUserId)) &&
+                       incoming().keys().size() <= 3;
+      allow delete: if isVerified() && existing().followerId == request.auth.uid;
+    }
+
+    match /posts/{postId} {
+      allow list: if isSignedIn() && resource.data.userId != null;
+      allow get: if isSignedIn();
+      allow create: if isVerified() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().userId == request.auth.uid &&
+                       exists(/databases/$(database)/documents/users/$(incoming().userId)) &&
+                       incoming().keys().size() <= 4;
+      allow update: if isVerified() &&
+                       isValidPost(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (incoming().diff(existing()).affectedKeys().hasOnly(['likesCount']));
+      allow delete: if isVerified() && existing().userId == request.auth.uid;
+    }
+  }
+}
