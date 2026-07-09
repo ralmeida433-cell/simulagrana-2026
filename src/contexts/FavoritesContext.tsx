@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import { db, auth } from '../services/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-export type AssetCategory = 'Ações BR' | 'Ações EUA' | 'ETFs' | 'FIIs' | 'REITs';
+export type AssetCategory = 'Ações BR' | 'Ações EUA' | 'ETFs Nacionais' | 'ETFs Globais' | 'ETFs' | 'FIIs' | 'Fiagros' | 'REITs' | string;
 
 export interface FavoriteAsset {
   ticker: string;
@@ -80,7 +80,27 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const saved = localStorage.getItem('simulagrana_favorites');
       if (saved) {
         try {
-          setFavorites(JSON.parse(saved));
+          let parsed = JSON.parse(saved);
+          let migrated = false;
+          parsed = parsed.map(f => {
+            let newCat = f.category;
+            if (f.category === 'ETFs') {
+               newCat = (f.ticker.endsWith('.SA') || /^[A-Z0-9]{4}\d{1,2}$/.test(f.ticker)) ? 'ETFs Nacionais' : 'ETFs Globais';
+            } else if (f.category === 'FIIs' && f.name) {
+               if (f.name.toUpperCase().includes('FIAGRO') || f.name.toUpperCase().includes('AGRO')) {
+                 newCat = 'Fiagros';
+               }
+            }
+            if (newCat !== f.category) {
+              migrated = true;
+              return { ...f, category: newCat };
+            }
+            return f;
+          });
+          if (migrated) {
+            localStorage.setItem('simulagrana_favorites', JSON.stringify(parsed));
+          }
+          setFavorites(parsed);
         } catch (e) {
           console.error('Failed to parse local favorites', e);
         }
@@ -117,14 +137,32 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           
           // Merge local & firestore favorites to prevent data loss
           const merged = [...localFavs, ...firestoreFavs];
-          const unique = merged.filter((item, index, self) => 
-            self.findIndex(t => t.ticker === item.ticker) === index
+          let unique = merged.filter((item, index, self) => 
+             self.findIndex(t => t.ticker === item.ticker) === index
           );
+          
+          // Migrate categories
+          let migrated = false;
+          unique = unique.map(f => {
+            let newCat = f.category;
+            if (f.category === 'ETFs') {
+               newCat = (f.ticker.endsWith('.SA') || /^[A-Z0-9]{4}\d{1,2}$/.test(f.ticker)) ? 'ETFs Nacionais' : 'ETFs Globais';
+            } else if (f.category === 'FIIs' && f.name) {
+               if (f.name.toUpperCase().includes('FIAGRO') || f.name.toUpperCase().includes('AGRO')) {
+                 newCat = 'Fiagros';
+               }
+            }
+            if (newCat !== f.category) {
+              migrated = true;
+              return { ...f, category: newCat };
+            }
+            return f;
+          });
           
           if (active) {
             setFavorites(unique);
             // Sync merge back to Firestore if new favorites were added locally
-            if (unique.length > firestoreFavs.length) {
+            if (unique.length > firestoreFavs.length || migrated) {
               await setDoc(docRef, { favorites: unique, updatedAt: Date.now() }, { merge: true });
             }
           }

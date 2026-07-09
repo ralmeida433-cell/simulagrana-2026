@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 showTransactions: true,
                 showPerformance: true,
               },
-              aiCreditsRemaining: 5,
+              aiCreditsRemaining: 10,
               aiCreditsLastReset: ""
             };
             

@@ -838,11 +838,11 @@ export default function App() {
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-xs font-semibold text-primary cursor-help transition-all hover:bg-primary/15 shrink-0"
                   >
                     <BrainCircuit className="w-3.5 h-3.5 text-primary" />
-                    <span>{(profile?.aiCreditsRemaining ?? 5)}/5 IA</span>
+                    <span>{(profile?.aiCreditsRemaining ?? 10)}/10 IA</span>
                   </div>
                 )} />
                 <TooltipContent side="bottom" align="center" className="font-semibold text-xs py-1.5 px-3">
-                  Você possui {(profile?.aiCreditsRemaining ?? 5)} de 5 créditos diários de Inteligência Artificial restantes para hoje.
+                  Você possui {(profile?.aiCreditsRemaining ?? 10)} de 10 créditos de Inteligência Artificial restantes (renovam a cada 24h).
                 </TooltipContent>
               </Tooltip>
             )}

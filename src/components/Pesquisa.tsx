@@ -47,9 +47,7 @@ import { RiskBadge } from './RiskAlert';
 import { SetoresRanking } from './SetoresRanking';
 import { ScreenerAvancado } from './ScreenerAvancado';
 import { useFavorites, AssetCategory, FavoriteAsset } from '../contexts/FavoritesContext';
-
-// Token BRAPI - Carregado via variável de ambiente
-const BRAPI_TOKEN = import.meta.env.VITE_BRAPI_TOKEN || process.env.BRAPI_TOKEN || "";
+import { CustomSelect } from './ui/CustomSelect';
 
 // Mapeamento de setores para a API BRAPI (Chaves em MAIÚSCULO para busca case-insensitive)
 const BRAPI_SECTORS: Record<string, string> = {
@@ -449,9 +447,14 @@ const Pesquisa: React.FC = () => {
   const [explorerCategory, setExplorerCategory] = useState<keyof typeof MARKET_EXPLORER_DATA>('acoes');
   const [marketIndices, setMarketIndices] = useState<any[]>([]);
 
-  const getAssetCategory = (type: string, symbol: string): AssetCategory => {
-    if (type === 'fund' && symbol.length >= 4) return 'FIIs';
-    if (type === 'etf') return symbol.endsWith('.SA') || !US_STOCK_DOMAINS[symbol.toUpperCase()] ? 'ETFs' : 'ETFs'; // Simplified
+  const getAssetCategory = (type: string, symbol: string, name: string = ''): AssetCategory => {
+    if (type === 'fund' && symbol.length >= 4) {
+      if (name.toUpperCase().includes('FIAGRO') || name.toUpperCase().includes('AGRO')) return 'Fiagros';
+      return 'FIIs';
+    }
+    if (type === 'etf') {
+      return (symbol.endsWith('.SA') || !US_STOCK_DOMAINS[symbol.toUpperCase()]) ? 'ETFs Nacionais' : 'ETFs Globais';
+    }
     if (type === 'stock' || type === 'bdr') return symbol.endsWith('.SA') || /^[A-Z0-9]{4}\d{1,2}$/.test(symbol) ? 'Ações BR' : 'Ações EUA';
     return 'Ações BR';
   };
@@ -464,7 +467,7 @@ const Pesquisa: React.FC = () => {
       addFavorite({
         ticker: assetData.symbol,
         name: assetData.longName || assetData.shortName || assetData.symbol,
-        category: getAssetCategory(assetData.type, assetData.symbol),
+        category: getAssetCategory(assetData.type, assetData.symbol, assetData.longName || assetData.shortName),
         priceAtFavoritation: assetData.regularMarketPrice,
         currency: assetData.currency === 'USD' ? 'USD' : 'BRL',
       });
@@ -973,7 +976,7 @@ const Pesquisa: React.FC = () => {
       return;
     }
     if (profile?.aiCreditsRemaining !== undefined && profile.aiCreditsRemaining <= 0) {
-      setDocAnalysisError('⚠️ Seu limite diário de 5 análises de IA foi atingido. Ele será renovado amanhã!');
+      setDocAnalysisError('⚠️ Seu limite de 10 análises de IA foi atingido. Ele será renovado 24 horas após o último reset!');
       setAnalysisStatus('error');
       return;
     }
@@ -1159,7 +1162,7 @@ Principais mensagens e contexto financeiro em 1 ou 2 parágrafos.
     setDocError(null);
     setShowScreener(false);
 
-    const tokenParam = BRAPI_TOKEN ? `&token=${BRAPI_TOKEN}` : '';
+    
 
     try {
       if (isB3) {
@@ -1820,31 +1823,31 @@ Principais mensagens e contexto financeiro em 1 ou 2 parágrafos.
               <div className="space-y-4">
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Classe de Ativo</label>
-                  <select 
+                  <CustomSelect 
                     value={filters.type}
-                    onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-primary/50 outline-none"
-                  >
-                    <option value="all">Todas as Classes</option>
-                    <option value="stock">Ações BR</option>
-                    <option value="fund">Fundo Imobiliário (FII)</option>
-                    <option value="etf">ETFs & Índices</option>
-                    <option value="bdr">BDRs</option>
-                  </select>
+                    onChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+                    options={[
+                      { value: 'all', label: 'Todas as Classes' },
+                      { value: 'stock', label: 'Ações BR' },
+                      { value: 'fund', label: 'Fundo Imobiliário (FII)' },
+                      { value: 'etf', label: 'ETFs & Índices' },
+                      { value: 'bdr', label: 'BDRs' },
+                    ]}
+                  />
                 </div>
                 {filters.type !== 'fund' && (
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Setor</label>
-                    <select 
+                    <CustomSelect 
                       value={filters.sector}
-                      onChange={(e) => setFilters(prev => ({ ...prev, sector: e.target.value }))}
-                      className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-primary/50 outline-none"
-                    >
-                      <option value="all">Todos os Setores</option>
-                      {Array.from(new Set(allAssets.map(a => a.sector).filter(Boolean))).sort().map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFilters(prev => ({ ...prev, sector: value }))}
+                      options={[
+                        { value: 'all', label: 'Todos os Setores' },
+                        ...Array.from(new Set(allAssets.map(a => a.sector).filter(Boolean))).sort().map(s => ({
+                          value: String(s), label: String(s)
+                        }))
+                      ]}
+                    />
                   </div>
                 )}
               </div>

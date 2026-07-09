@@ -19,6 +19,7 @@ import { searchStockData } from '../services/stockService';
 import { fetchFinanceData } from '../services/financeService';
 import { analyzeDividendPattern } from '../services/dividendPatternService';
 import { Trash2 } from 'lucide-react';
+import { CustomSelect } from './ui/CustomSelect';
 
 // Cores das Classes de Ativos baseadas na nova identidade
 const ASSET_COLORS: Record<AssetClass, string> = {
@@ -250,6 +251,32 @@ export default function InvestmentPortfolio() {
   const [formQty, setFormQty] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [isImportingNote, setIsImportingNote] = useState(false);
+  const [tickerSuggestions, setTickerSuggestions] = useState<any[]>([]);
+  const [showTickerSuggestions, setShowTickerSuggestions] = useState(false);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!formTicker || formTicker.length < 1 || !showTickerSuggestions) {
+        setTickerSuggestions([]);
+        return;
+      }
+      
+      const q = formTicker.toUpperCase();
+      try {
+        const res = await fetch(`/api/fin/search/${encodeURIComponent(q)}`);
+        if (res.ok) {
+          const apiData = await res.json();
+          setTickerSuggestions(apiData.slice(0, 5));
+        } else {
+          setTickerSuggestions([]);
+        }
+      } catch (e) {
+        setTickerSuggestions([]);
+      }
+    };
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [formTicker, showTickerSuggestions]);
 
   const handleImportNote = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1226,11 +1253,15 @@ export default function InvestmentPortfolio() {
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <h3 className="text-xl font-bold text-foreground">Evolução de Proventos</h3>
             <div className="flex items-center gap-2">
-              <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none">
-                <option>12 meses</option>
-                <option>6 meses</option>
-                <option>Max</option>
-              </select>
+              <CustomSelect 
+                value="12 meses"
+                onChange={() => {}}
+                options={[
+                  { value: '12 meses', label: '12 meses' },
+                  { value: '6 meses', label: '6 meses' },
+                  { value: 'Max', label: 'Max' }
+                ]}
+              />
             </div>
           </div>
           
@@ -1311,12 +1342,16 @@ export default function InvestmentPortfolio() {
             <div className="bg-card border border-border rounded-3xl p-6 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-foreground">Evolução do Patrimônio</h3>
-              <div className="flex gap-4">
-                <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none">
-                  <option>12M</option>
-                  <option>6M</option>
-                  <option>YTD</option>
-                </select>
+              <div className="flex gap-4 w-28">
+                <CustomSelect 
+                  value="12M"
+                  onChange={() => {}}
+                  options={[
+                    { value: '12M', label: '12M' },
+                    { value: '6M', label: '6M' },
+                    { value: 'YTD', label: 'YTD' }
+                  ]}
+                />
               </div>
             </div>
             
@@ -1713,15 +1748,49 @@ export default function InvestmentPortfolio() {
               <form onSubmit={handleAddTransaction} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Classe de Ativo</label>
-                  <select value={formAssetClass} onChange={(e) => setFormAssetClass(e.target.value as AssetClass)} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-foreground font-medium outline-none ring-2 ring-transparent focus:ring-emerald-500 transition-all">
-                    {Object.keys(ASSET_COLORS).map(ac => <option key={ac} value={ac}>{ac}</option>)}
-                  </select>
+                  <CustomSelect 
+                    value={formAssetClass} 
+                    onChange={(value) => setFormAssetClass(value as AssetClass)} 
+                    options={Object.keys(ASSET_COLORS).map(ac => ({ value: ac, label: ac }))}
+                  />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="relative">
                     <label className="block text-xs font-bold text-slate-500 mb-1">Ticker / Código</label>
-                    <input required type="text" placeholder="EX: BTLG11" value={formTicker} onChange={(e) => setFormTicker(e.target.value)} onBlur={handleTickerBlur} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-foreground font-bold uppercase outline-none ring-2 ring-transparent focus:ring-emerald-500 transition-all" />
+                    <input 
+                      required 
+                      type="text" 
+                      placeholder="EX: GOOG" 
+                      value={formTicker} 
+                      onChange={(e) => {
+                        setFormTicker(e.target.value);
+                        setShowTickerSuggestions(true);
+                      }} 
+                      onBlur={() => {
+                        setTimeout(() => setShowTickerSuggestions(false), 200);
+                        handleTickerBlur();
+                      }} 
+                      onFocus={() => setShowTickerSuggestions(true)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 text-foreground font-bold uppercase outline-none ring-2 ring-transparent focus:ring-emerald-500 transition-all" 
+                    />
+                    {showTickerSuggestions && tickerSuggestions.length > 0 && (
+                      <ul className="absolute z-50 left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                        {tickerSuggestions.map((item, i) => (
+                          <li 
+                            key={i} 
+                            onMouseDown={() => {
+                              setFormTicker(item.ticker);
+                              setShowTickerSuggestions(false);
+                            }}
+                            className="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer flex flex-col"
+                          >
+                            <span className="font-bold text-sm text-foreground">{item.ticker}</span>
+                            <span className="text-xs text-muted-foreground truncate">{item.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 mb-1">Data</label>

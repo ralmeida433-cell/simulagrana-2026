@@ -1,5 +1,4 @@
-import { generateContentWithRetry } from './aiService';
-import { Type } from "@google/genai";
+import { generateContentWithRetry, Type } from './aiService';
 
 export interface Transaction {
   id: string;
@@ -19,17 +18,6 @@ export interface ProcessedTransaction {
 }
 
 export async function processTransactionsWithAI(transactions: Transaction[]): Promise<ProcessedTransaction[]> {
-  const hasApiKey = !!((window as any).process?.env?.GEMINI_API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY);
-  if (!hasApiKey) {
-    console.warn("Gemini API Key não configurada. Usando classificação básica.");
-    return transactions.map(t => ({
-      id: t.id,
-      merchant: t.description,
-      category: t.category || 'Outros',
-      type: t.type || 'expense'
-    }));
-  }
-
   const prompt = `
     Analise as seguintes transações financeiras e limpe as descrições para identificar o estabelecimento real, 
     classifique-as em categorias padrão e defina o tipo (income ou expense).
@@ -83,16 +71,6 @@ export interface FinancialInsights {
 }
 
 export async function analyzeFinancialHealth(transactions: ProcessedTransaction[], rawTransactions: Transaction[]): Promise<FinancialInsights> {
-  const hasApiKey = !!((window as any).process?.env?.GEMINI_API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY);
-  if (!hasApiKey) {
-    return {
-      subscriptions: [],
-      anomalies: [],
-      cashFlowPrediction: { projectedBalance: 0, analysis: "IA não configurada." },
-      healthScore: { score: 50, explanation: "IA não configurada." }
-    };
-  }
-
   const prompt = `
     Analise o histórico de transações e forneça insights financeiros avançados:
     

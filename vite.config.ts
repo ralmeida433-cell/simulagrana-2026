@@ -7,11 +7,6 @@ import {VitePWA} from 'vite-plugin-pwa';
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || ''),
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY || ''),
-      'process.env.BRAPI_TOKEN': JSON.stringify(env.BRAPI_TOKEN || process.env.BRAPI_TOKEN || ''),
-    },
     plugins: [
       react(), 
       tailwindcss(),

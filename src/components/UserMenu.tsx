@@ -64,21 +64,21 @@ export function UserMenu() {
                   {/* AI Credits Badge/Indicator */}
                   <div className="mt-2 pt-2 border-t border-border/50">
                     <div className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
-                      <span>Análises de IA Hoje</span>
+                      <span>Análises de IA (24h)</span>
                       <span className={cn(
                         "font-mono text-xs font-bold",
-                        (profile?.aiCreditsRemaining ?? 5) > 0 ? "text-primary" : "text-red-500"
+                        (profile?.aiCreditsRemaining ?? 10) > 0 ? "text-primary" : "text-red-500"
                       )}>
-                        {profile?.aiCreditsRemaining ?? 5}/5
+                        {profile?.aiCreditsRemaining ?? 10}/10
                       </span>
                     </div>
                     <div className="w-full bg-border/40 h-1.5 rounded-full mt-1.5 overflow-hidden">
                       <div 
                         className={cn(
                           "h-full rounded-full transition-all duration-300",
-                          (profile?.aiCreditsRemaining ?? 5) > 0 ? "bg-primary" : "bg-red-500"
+                          (profile?.aiCreditsRemaining ?? 10) > 0 ? "bg-primary" : "bg-red-500"
                         )}
-                        style={{ width: `${((profile?.aiCreditsRemaining ?? 5) / 5) * 100}%` }}
+                        style={{ width: `${((profile?.aiCreditsRemaining ?? 10) / 10) * 100}%` }}
                       />
                     </div>
                   </div>

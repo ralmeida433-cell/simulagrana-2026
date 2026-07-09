@@ -15,6 +15,7 @@ import VehicleRadar from './VehicleRadar';
 import { useAuth } from '../../contexts/AuthContext';
 import { db, handleFirestoreError, OperationType, auth } from '../../services/firebase';
 import { collection, onSnapshot, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { CustomSelect } from '../ui/CustomSelect';
 
 // Formatter
 const formatCurrency = (value: number) => {
@@ -616,26 +617,31 @@ const CriarAnuncioModal = ({ isOpen, onClose, onAddVehicle, vehicleToEdit, onEdi
                         <div className="grid grid-cols-2 gap-4">
                            <div>
                              <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Transmissão</label>
-                             <select 
-                               className="w-full bg-slate-50 dark:bg-slate-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none"
-                               value={formData.transmissao} onChange={e => setFormData({...formData, transmissao: e.target.value})}
-                             >
-                                <option value="Manual">Manual</option>
-                                <option value="Automático">Automático</option>
-                                <option value="CVT">CVT</option>
-                                <option value="Automatizado">Automatizado</option>
-                             </select>
+                             <CustomSelect 
+                               value={formData.transmissao} 
+                               onChange={value => setFormData({...formData, transmissao: value})}
+                               options={[
+                                 { value: 'Manual', label: 'Manual' },
+                                 { value: 'Automático', label: 'Automático' },
+                                 { value: 'CVT', label: 'CVT' },
+                                 { value: 'Automatizado', label: 'Automatizado' }
+                               ]}
+                             />
                            </div>
                            <div>
                              <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Combustível</label>
-                             <select className="w-full bg-slate-50 dark:bg-slate-800 border border-border rounded-xl px-4 py-3 text-sm outline-none" value={formData.combustivel} onChange={e => setFormData({...formData, combustivel: e.target.value})}>
-                               <option value="Flex">Flex</option>
-                               <option value="Gasolina">Gasolina</option>
-                               <option value="Etanol">Etanol</option>
-                               <option value="Diesel">Diesel</option>
-                               <option value="Híbrido">Híbrido</option>
-                               <option value="Elétrico">Elétrico</option>
-                             </select>
+                             <CustomSelect 
+                               value={formData.combustivel} 
+                               onChange={value => setFormData({...formData, combustivel: value})}
+                               options={[
+                                 { value: 'Flex', label: 'Flex' },
+                                 { value: 'Gasolina', label: 'Gasolina' },
+                                 { value: 'Etanol', label: 'Etanol' },
+                                 { value: 'Diesel', label: 'Diesel' },
+                                 { value: 'Híbrido', label: 'Híbrido' },
+                                 { value: 'Elétrico', label: 'Elétrico' }
+                               ]}
+                             />
                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -1050,14 +1056,15 @@ const ContatoVendedorModal = ({ isOpen, onClose, vehicle }: { isOpen: boolean, o
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Forma de Pagamento</label>
-                    <select 
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none"
-                      value={formData.pagamento} onChange={e => setFormData({...formData, pagamento: e.target.value})}
-                    >
-                      <option value="avista">À vista</option>
-                      <option value="financiamento">Financiamento</option>
-                      <option value="troca">Dar carro na troca</option>
-                    </select>
+                    <CustomSelect 
+                      value={formData.pagamento} 
+                      onChange={value => setFormData({...formData, pagamento: value})}
+                      options={[
+                        { value: 'avista', label: 'À vista' },
+                        { value: 'financiamento', label: 'Financiamento' },
+                        { value: 'troca', label: 'Dar carro na troca' }
+                      ]}
+                    />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Orçamento estimado (R$)</label>
@@ -1671,13 +1678,17 @@ export default function Marketplace() {
                     
                     <div>
                       <label className="text-sm font-bold block mb-3 text-foreground">Ano</label>
-                      <select className="w-full bg-slate-50 dark:bg-slate-800 border border-border rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 appearance-none">
-                         <option>Todos os anos</option>
-                         <option>A partir de 2024</option>
-                         <option>A partir de 2022</option>
-                         <option>A partir de 2020</option>
-                         <option>A partir de 2015</option>
-                      </select>
+                      <CustomSelect 
+                        value="Todos os anos"
+                        onChange={() => {}}
+                        options={[
+                          { value: 'Todos os anos', label: 'Todos os anos' },
+                          { value: 'A partir de 2024', label: 'A partir de 2024' },
+                          { value: 'A partir de 2022', label: 'A partir de 2022' },
+                          { value: 'A partir de 2020', label: 'A partir de 2020' },
+                          { value: 'A partir de 2015', label: 'A partir de 2015' }
+                        ]}
+                      />
                     </div>
 
                     <div>
@@ -1716,12 +1727,18 @@ export default function Marketplace() {
                   <h2 className="text-2xl font-bold text-foreground">Carros em Destaque</h2>
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground font-medium">{filteredVehicles.length} resultados</span>
-                    <select className="bg-transparent border-none text-sm font-bold text-foreground outline-none cursor-pointer hover:text-emerald-600 transition-colors">
-                      <option>Mais Relevantes</option>
-                      <option>Menor Preço</option>
-                      <option>Maior Preço</option>
-                      <option>Menor KM</option>
-                    </select>
+                    <div className="w-40">
+                      <CustomSelect 
+                        value="Mais Relevantes"
+                        onChange={() => {}}
+                        options={[
+                          { value: 'Mais Relevantes', label: 'Mais Relevantes' },
+                          { value: 'Menor Preço', label: 'Menor Preço' },
+                          { value: 'Maior Preço', label: 'Maior Preço' },
+                          { value: 'Menor KM', label: 'Menor KM' }
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1878,11 +1895,15 @@ export default function Marketplace() {
                     </div>
                     <div>
                       <label className="text-sm font-bold block mb-3 text-foreground">Ano</label>
-                      <select className="w-full bg-slate-50 dark:bg-slate-800 border border-border rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500">
-                         <option>Todos os anos</option>
-                         <option>A partir de 2024</option>
-                         <option>A partir de 2022</option>
-                      </select>
+                      <CustomSelect 
+                        value="Todos os anos"
+                        onChange={() => {}}
+                        options={[
+                          { value: 'Todos os anos', label: 'Todos os anos' },
+                          { value: 'A partir de 2024', label: 'A partir de 2024' },
+                          { value: 'A partir de 2022', label: 'A partir de 2022' }
+                        ]}
+                      />
                     </div>
                 </div>
                 <div className="p-4 sm:p-5 border-t border-border bg-card">

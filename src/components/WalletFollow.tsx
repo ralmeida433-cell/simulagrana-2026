@@ -11,6 +11,7 @@ import { db, handleFirestoreError, OperationType } from '../services/firebase';
 import PostCard from './social/PostCard';
 import MessagesView from './social/MessagesView';
 import { motion } from 'motion/react';
+import { CustomSelect } from './ui/CustomSelect';
 
 const AnimatedWalletLogo = ({ size = 'md' }: { size?: 'md' | 'lg' }) => {
   const isLg = size === 'lg';
@@ -627,15 +628,17 @@ export default function WalletFollow() {
                 <div className="space-y-3">
                   <div className="flex flex-col gap-2">
                     <span className="text-sm font-medium text-muted-foreground">Visibilidade da Carteira</span>
-                    <select 
-                      className="text-sm bg-background border border-emerald-500/30 rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm"
-                      value={profile?.walletVisibility || 'private'}
-                      onChange={(e) => updateProfile({ walletVisibility: e.target.value as any })}
-                    >
-                      <option value="private">🔒 Privada</option>
-                      <option value="followers">👥 Acesso para Seguidores</option>
-                      <option value="public">🌍 Público</option>
-                    </select>
+                    <div className="w-48">
+                      <CustomSelect 
+                        value={profile?.walletVisibility || 'private'}
+                        onChange={(value) => updateProfile({ walletVisibility: value as any })}
+                        options={[
+                          { value: 'private', label: '🔒 Privada' },
+                          { value: 'followers', label: '👥 Acesso para Seguidores' },
+                          { value: 'public', label: '🌍 Público' }
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

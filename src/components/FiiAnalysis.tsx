@@ -242,7 +242,7 @@ export default function FiiAnalysis() {
       return;
     }
     if (profile?.aiCreditsRemaining !== undefined && profile.aiCreditsRemaining <= 0) {
-      setDocAnalysisError('⚠️ Seu limite diário de 5 análises de IA foi atingido. Ele será renovado amanhã!');
+      setDocAnalysisError('⚠️ Seu limite de 10 análises de IA foi atingido. Ele será renovado 24 horas após o último reset!');
       return;
     }
     if (!isAIConfigured()) return;
@@ -332,7 +332,7 @@ Apresente uma síntese interpretativa do cenário atual e as perspectivas futura
 
   const generateAnalysis = async (data: any) => {
     if (!isAIConfigured()) {
-      setAnalysis('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente VITE_GEMINI_API_KEY (ou GEMINI_API_KEY) no seu servidor ou em Configurações.');
+      setAnalysis('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente GEMINI_API_KEY no seu servidor ou em Configurações.');
       return;
     }
 
@@ -412,11 +412,11 @@ Seja honesto e direto. Se o fundo for ruim, aponte os motivos claramente.
       // Extract URLs
       const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       if (chunks) {
-        const extractedSources = chunks
+        const extractedSources: {uri: string, title: string}[] = chunks
           .filter((chunk: any) => chunk.web?.uri && chunk.web?.title)
           .map((chunk: any) => ({
-            uri: chunk.web.uri,
-            title: chunk.web.title
+            uri: chunk.web.uri as string,
+            title: chunk.web.title as string
           }));
         
         // Remove duplicates based on URI

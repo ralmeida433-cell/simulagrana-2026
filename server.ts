@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getAneelData, getConcessionaires } from './src/services/aneelBackendService.js';
-import { createConnectToken, getPluggyAccounts, getPluggyTransactions } from './src/services/pluggyBackendService.js';
+import { createConnectToken, getPluggyAccounts, getPluggyTransactions } from './src/backend_services/pluggyBackendService.js';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { createRequire } from 'module';
@@ -275,7 +275,7 @@ app.use(async (req, res, next) => {
         });
 
         const buffer = Buffer.from(response.data);
-        let contentType = response.headers['content-type'] || 'application/octet-stream';
+        let contentType = String(response.headers['content-type'] || 'application/octet-stream');
         
         if (buffer.length > 5 && buffer.toString('utf-8', 0, 5) === '%PDF-') {
           contentType = 'application/pdf';
@@ -320,7 +320,7 @@ app.use(async (req, res, next) => {
 
 // Helper to get environment variables safely
 const getEnv = (key: string) => {
-  const val = process.env[key] || process.env[`VITE_${key}`] || '';
+  const val = process.env[key] || '';
   return val;
 };
 
@@ -604,6 +604,26 @@ app.get('/api/companies/:ticker/announcements', async (req, res) => {
   }
 });
 
+app.post('/api/ai/generate', async (req, res) => {
+  try {
+    const { params } = req.body;
+    const apiKey = getEnv('API_KEY') || getEnv('GEMINI_API_KEY');
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
+    
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent(params);
+    
+    // Send full response object since frontend uses candidates, parts, groundingMetadata, etc.
+    res.json(response);
+  } catch (error: any) {
+    console.error("AI Proxy Error:", error?.message || error);
+    res.status(500).json({ error: 'Falha na geração de conteúdo com IA' });
+  }
+});
+
 // Diagnostic route
 app.get('/api/debug/config', (req, res) => {
   const geminiKey = getEnv('GEMINI_API_KEY');
@@ -646,10 +666,10 @@ app.get('/api/finance-config', (req, res) => {
 
 app.get('/api/debug/key', (req, res) => {
   res.json({
-    geminiKey: getEnv('GEMINI_API_KEY'),
-    rawGeminiKey: process.env.GEMINI_API_KEY,
-    rawViteGeminiKey: process.env.VITE_GEMINI_API_KEY,
-    apiKey: process.env.API_KEY
+    geminiKeyConfigured: !!getEnv('GEMINI_API_KEY'),
+    fmpKeyConfigured: !!getEnv('FMP_API_KEY'),
+    finnhubKeyConfigured: !!getEnv('FINNHUB_API_KEY'),
+    twelveDataKeyConfigured: !!getEnv('TWELVE_DATA_API_KEY')
   });
 });
 
@@ -2582,41 +2602,6 @@ app.get('/api/fin/:ticker', async (req, res) => {
                         queryTicker.startsWith('BBAS') || 
                         queryTicker.startsWith('SANB');
 
-    // Generate dynamic heuristic fallback if no preset is defined but we have empty indicators for a B3 stock
-    if (!b3Preset && isB3Stock) {
-      const estimatedEps = price / 10 || 1.5;
-      const estimatedBvps = price / 1.5 || 10;
-      const estimatedShares = (price > 0) ? Math.round(15000000000 / price) : 1000000000;
-      const estMarketCap = price * estimatedShares || 15000000000;
-      b3Preset = {
-        eps: estimatedEps,
-        bvps: estimatedBvps,
-        sharesOutstanding: estimatedShares,
-        totalDebt: estMarketCap * (isFinancial ? 5.5 : 0.45),
-        totalCash: estMarketCap * (isFinancial ? 1.2 : 0.12),
-        netDebt: estMarketCap * (isFinancial ? 4.3 : 0.33),
-        dividendYield: 4.5,
-        trailingAnnualDividendRate: price * 0.045 || 0.45,
-        payoutRatio: 45.0,
-        peRatio: 10.0,
-        pvp: 1.5,
-        roe: 14.5,
-        roa: isFinancial ? 1.6 : 6.5,
-        ebitda: estMarketCap / (isFinancial ? 12 : 7.5),
-        netMargin: isFinancial ? 16.5 : 8.5,
-        grossMargin: isFinancial ? 100.0 : 35.0,
-        operatingMargin: isFinancial ? 22.0 : 12.0,
-        roic: 11.5,
-        currentRatio: 1.25,
-        totalAssets: estMarketCap * (isFinancial ? 7.5 : 1.4),
-        totalLiabilities: estMarketCap * (isFinancial ? 6.5 : 0.65),
-        revenue: estMarketCap / (isFinancial ? 1.5 : 0.95),
-        fcf: estMarketCap / 12,
-        operatingCashflow: estMarketCap / 10,
-        score: 68
-      };
-    }
-
     const eps = dks.trailingEps || b3Preset?.eps || 0;
     const bvps = dks.bookValue || b3Preset?.bvps || 0;
     const sharesOutstanding = dks.sharesOutstanding || b3Preset?.sharesOutstanding || 0;
@@ -2625,43 +2610,24 @@ app.get('/api/fin/:ticker', async (req, res) => {
     const netIncome = dks.netIncomeToCommon || (eps * sharesOutstanding) || (b3Preset?.eps * b3Preset?.sharesOutstanding) || 0;
     const revenue = fd.totalRevenue || b3Preset?.revenue || 0;
     
-    const totalAssets = fd.totalAssets || b3Preset?.totalAssets || (netIncome > 0 && (fd.returnOnAssets || 0) > 0 ? netIncome / (fd.returnOnAssets) : 0) || (marketCap > 0 ? marketCap * 10 : 0);
-    const totalLiabilities = fd.totalLiabilities || b3Preset?.totalLiabilities || (totalAssets > 0 && bvps > 0 && sharesOutstanding > 0 ? totalAssets - (bvps * sharesOutstanding) : 0) || (totalAssets > 0 ? totalAssets * 0.9 : 0);
+    const totalAssets = fd.totalAssets || b3Preset?.totalAssets || 0;
+    const totalLiabilities = fd.totalLiabilities || b3Preset?.totalLiabilities || 0;
     
-    // For financials, if currentAssets or currentLiabilities are 0, use estimated assets/liabilities to avoid zero ratios
-    const currentAssets = fd.totalCurrentAssets || b3Preset?.currentAssets || (isFinancial ? totalAssets * 0.45 : 0);
-    const currentLiabilities = fd.totalCurrentLiabilities || b3Preset?.currentLiabilities || (isFinancial ? totalLiabilities * 0.45 : 0);
+    const currentAssets = fd.totalCurrentAssets || b3Preset?.currentAssets || 0;
+    const currentLiabilities = fd.totalCurrentLiabilities || b3Preset?.currentLiabilities || 0;
     const workingCapital = currentAssets - currentLiabilities;
     
-    // Debt and cash fallbacks
     let totalDebt = fd.totalDebt || b3Preset?.totalDebt || 0;
     let totalCash = fd.totalCash || b3Preset?.totalCash || 0;
     
-    if (isFinancial && totalDebt === 0) {
-      // For banks/financials, liabilities act as the primary funding structure (debt equivalent)
-      totalDebt = totalLiabilities * 0.75;
-    }
-    if (isFinancial && totalCash === 0) {
-      // Banks maintain high liquidity/cash reserves
-      totalCash = totalAssets * 0.15;
-    }
-    
-    // Fallback if non-financial is missing debt/cash but has liabilities/assets from Yahoo
-    if (!isFinancial && totalDebt === 0 && totalLiabilities > 0) {
-      totalDebt = totalLiabilities * 0.55;
-    }
-    if (!isFinancial && totalCash === 0 && totalAssets > 0) {
-      totalCash = totalAssets * 0.08;
-    }
-    
     const netDebt = totalDebt - totalCash;
     
-    const operatingCashflow = fd.operatingCashflow || b3Preset?.operatingCashflow || (netIncome > 0 ? netIncome * 1.15 : 0);
+    const operatingCashflow = fd.operatingCashflow || b3Preset?.operatingCashflow || 0;
     const capex = 0;
-    const fcf = fd.freeCashflow || b3Preset?.fcf || (operatingCashflow - Math.abs(capex)) || (netIncome > 0 ? netIncome * 0.8 : 0);
+    const fcf = fd.freeCashflow || b3Preset?.fcf || 0;
     
     const dividendYield = (sd.trailingAnnualDividendYield || sd.dividendYield || sd.yield || 0) * 100 || b3Preset?.dividendYield || 0;
-    const trailingAnnualDividendRate = sd.trailingAnnualDividendRate || sd.dividendRate || b3Preset?.trailingAnnualDividendRate || (sd.yield ? sd.yield * price : 0) || 0;
+    const trailingAnnualDividendRate = sd.trailingAnnualDividendRate || sd.dividendRate || b3Preset?.trailingAnnualDividendRate || 0;
     
     let payoutRatio = (sd.payoutRatio || 0) * 100 || b3Preset?.payoutRatio || 0;
     if (payoutRatio === 0 && eps > 0 && trailingAnnualDividendRate > 0) {
@@ -2671,26 +2637,20 @@ app.get('/api/fin/:ticker', async (req, res) => {
     if (payoutRatio < 0) payoutRatio = 0;
     
     const peRatio = sd.trailingPE || dks.trailingPE || (eps > 0 ? price / eps : 0) || b3Preset?.peRatio || 0;
-    const roe = (fd.returnOnEquity || 0) * 100 || b3Preset?.roe || (netIncome > 0 && bvps > 0 && sharesOutstanding > 0 ? (netIncome / (bvps * sharesOutstanding)) * 100 : 15);
-    const roa = (fd.returnOnAssets || 0) * 100 || b3Preset?.roa || (netIncome > 0 && totalAssets > 0 ? (netIncome / totalAssets) * 100 : 1.5);
+    const roe = (fd.returnOnEquity || 0) * 100 || b3Preset?.roe || 0;
+    const roa = (fd.returnOnAssets || 0) * 100 || b3Preset?.roa || 0;
     
     const pvp = dks.priceToBook || (bvps > 0 ? price / bvps : 0) || b3Preset?.pvp || 0;
     
-    // EBIT and EBITDA approximations if not reported directly (e.g. Banks)
-    const ebit = fd.ebit || 
-                 (fd.operatingMargins ? revenue * fd.operatingMargins : 0) || 
-                 (netIncome > 0 ? netIncome * 1.35 : 0);
-                 
-    const ebitda = fd.ebitda || b3Preset?.ebitda || 
-                   (ebit > 0 ? ebit * 1.15 : 0) || 
-                   (netIncome > 0 ? netIncome * 1.55 : 0);
+    const ebit = fd.ebit || (fd.operatingMargins ? revenue * fd.operatingMargins : 0) || 0;
+    const ebitda = fd.ebitda || b3Preset?.ebitda || 0;
     
-    const netMargin = (fd.profitMargins || dks.profitMargins || 0) * 100 || b3Preset?.netMargin || (revenue > 0 ? (netIncome / revenue) * 100 : 15);
-    const grossMargin = (fd.grossMargins || 0) * 100 || b3Preset?.grossMargin || (isFinancial ? 100 : 40);
-    const operatingMargin = (fd.operatingMargins || 0) * 100 || b3Preset?.operatingMargin || (ebit > 0 && revenue > 0 ? (ebit / revenue) * 100 : 25);
+    const netMargin = (fd.profitMargins || dks.profitMargins || 0) * 100 || b3Preset?.netMargin || 0;
+    const grossMargin = (fd.grossMargins || 0) * 100 || b3Preset?.grossMargin || 0;
+    const operatingMargin = (fd.operatingMargins || 0) * 100 || b3Preset?.operatingMargin || 0;
     
-    const assetTurnover = fd.totalRevenue && totalAssets ? fd.totalRevenue / totalAssets : b3Preset?.assetTurnover || 0.4;
-    const roic = b3Preset?.roic || roe * 0.85;
+    const assetTurnover = fd.totalRevenue && totalAssets ? fd.totalRevenue / totalAssets : b3Preset?.assetTurnover || 0;
+    const roic = b3Preset?.roic || 0;
     
     const ev = dks.enterpriseValue || (marketCap + totalDebt - totalCash);
     const evEbitda = ebitda > 0 ? ev / ebitda : 0;
@@ -2700,12 +2660,12 @@ app.get('/api/fin/:ticker', async (req, res) => {
     const pAtivo = totalAssets > 0 ? marketCap / totalAssets : 0;
     const pSr = revenue > 0 ? marketCap / revenue : 0;
     
-    const pCapGiro = workingCapital > 0 ? marketCap / workingCapital : (marketCap > 0 && totalAssets > 0 ? marketCap / (totalAssets * 0.12) : 0);
+    const pCapGiro = workingCapital > 0 ? marketCap / workingCapital : 0;
     const pAtivoCircLiq = (currentAssets - totalDebt) > 0 ? marketCap / (currentAssets - totalDebt) : 0;
     
-    const passivosAtivos = totalAssets > 0 ? totalLiabilities / totalAssets : 0.9;
-    const plAtivos = totalAssets > 0 ? (totalAssets - totalLiabilities) / totalAssets : 0.1;
-    const liquidezCorrente = currentLiabilities > 0 ? currentAssets / currentLiabilities : (totalLiabilities > 0 ? totalAssets / totalLiabilities : 1.1);
+    const passivosAtivos = totalAssets > 0 ? totalLiabilities / totalAssets : 0;
+    const plAtivos = totalAssets > 0 ? (totalAssets - totalLiabilities) / totalAssets : 0;
+    const liquidezCorrente = currentLiabilities > 0 ? currentAssets / currentLiabilities : 0;
     
     const revenueGrowth = fd.revenueGrowth || b3Preset?.revenueGrowth || 0;
     const currentRatio = fd.currentRatio || b3Preset?.currentRatio || liquidezCorrente || 0;
@@ -3041,7 +3001,7 @@ app.post('/api/fii/extract-text', async (req, res) => {
               maxRedirects: 5
             });
             
-            if (secondResponse.headers['content-type']?.includes('application/pdf') || 
+            if (String(secondResponse.headers['content-type'] || '').includes('application/pdf') || 
                 Buffer.from(secondResponse.data).indexOf('%PDF') !== -1) {
               response = secondResponse;
               break;
@@ -3249,7 +3209,7 @@ app.get('/api/fii/proxy-pdf*', async (req, res) => {
     });
 
     const buffer = Buffer.from(response.data);
-    let contentType = response.headers['content-type'] || 'application/octet-stream';
+    let contentType = String(response.headers['content-type'] || 'application/octet-stream');
     
     // A CVM costuma enviar PDFs com content-type text/html incorreto
     if (buffer.length > 5 && buffer.toString('utf-8', 0, 5) === '%PDF-') {

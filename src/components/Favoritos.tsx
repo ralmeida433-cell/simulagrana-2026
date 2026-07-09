@@ -356,7 +356,7 @@ export default function Favoritos() {
     return adjusted;
   };
 
-  const categories: (AssetCategory | 'Todos')[] = ['Todos', 'Ações BR', 'Ações EUA', 'ETFs', 'FIIs', 'REITs'];
+  const categories: (AssetCategory | 'Todos')[] = Array.from(new Set(['Todos', 'Ações BR', 'Ações EUA', 'ETFs Nacionais', 'ETFs Globais', 'FIIs', 'Fiagros', 'REITs', ...favorites.map(f => f.category)]));
 
   const filteredFavorites = activeCategory === 'Todos' 
     ? favorites 

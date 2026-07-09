@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { CustomSelect } from './ui/CustomSelect';
 
 interface BirthdatePickerProps {
   value: string; // ISO format YYYY-MM-DD
@@ -73,53 +74,32 @@ export default function BirthdatePicker({ value, onChange, error }: BirthdatePic
       <div className="flex gap-2">
         {/* Day */}
         <div className="flex-1 relative">
-          <select
+          <CustomSelect 
             value={day}
-            onChange={(e) => setDay(e.target.value)}
-            className="w-full pl-3 pr-8 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white appearance-none text-sm"
-          >
-            <option value="">Dia</option>
-            {days.map((d) => (
-              <option key={d} value={d}>
-                {d.padStart(2, '0')}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            onChange={(val) => setDay(val)}
+            placeholder="Dia"
+            options={days.map(d => ({ value: d, label: d.padStart(2, '0') }))}
+          />
         </div>
 
         {/* Month */}
         <div className="flex-[1.5] relative">
-          <select
+          <CustomSelect 
             value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="w-full pl-3 pr-8 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white appearance-none text-sm"
-          >
-            <option value="">Mês</option>
-            {months.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            onChange={(val) => setMonth(val)}
+            placeholder="Mês"
+            options={months.map(m => ({ value: m.value, label: m.label }))}
+          />
         </div>
 
         {/* Year */}
         <div className="flex-[1.5] relative">
-          <select
+          <CustomSelect 
             value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className="w-full pl-3 pr-8 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white appearance-none text-sm"
-          >
-            <option value="">Ano</option>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            onChange={(val) => setYear(val)}
+            placeholder="Ano"
+            options={years.map(y => ({ value: y, label: y.toString() }))}
+          />
         </div>
       </div>
       {error && (

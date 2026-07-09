@@ -1,25 +1,38 @@
-import { Type, GenerateContentParameters, GenerateContentResponse } from "@google/genai";
-import { GoogleGenAI } from "@google/genai";
 import { auth, db } from "./firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
+// Defining types manually since we remove the frontend GenAI SDK to avoid exposing keys
+export interface GenerateContentParameters {
+  model: string;
+  contents: string | any[];
+  config?: any;
+}
+
+export type GenerateContentResponse = any;
+
 /**
- * Service to interact with the Gemini AI API directly from the frontend
+ * Service to interact with the Gemini AI API via backend proxy
  */
 
 /**
- * Generates content using the Gemini AI model.
+ * Generates content using the Gemini AI proxy.
  */
 export async function generateContent(params: GenerateContentParameters): Promise<GenerateContentResponse> {
   try {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("API key not configured");
+    const res = await fetch('/api/ai/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ params })
+    });
+    
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to generate content via proxy");
     }
-    const ai = new GoogleGenAI({ apiKey });
-    return await ai.models.generateContent(params);
+    
+    return await res.json();
   } catch (error) {
-    console.error("Error calling AI:", error);
+    console.error("Error calling AI proxy:", error);
     throw error;
   }
 }
@@ -46,30 +59,49 @@ export async function generateContentWithRetry(
   }
 
   const userData = docSnap.data();
-  let credits = userData?.aiCreditsRemaining !== undefined ? userData.aiCreditsRemaining : 5;
+  let credits = userData?.aiCreditsRemaining !== undefined ? userData.aiCreditsRemaining : 10;
   const lastReset = userData?.aiCreditsLastReset || "";
 
-  // Get true server date to reset credits daily
-  let serverDate = "";
+  // Get true server time to reset credits every 24 hours
+  let serverTimeMs = Date.now();
   try {
     const res = await fetch('/api/time');
     const timeData = await res.json();
-    serverDate = timeData.date;
+    if (timeData.timestamp) {
+       serverTimeMs = timeData.timestamp;
+    } else if (timeData.iso) {
+       serverTimeMs = new Date(timeData.iso).getTime();
+    }
   } catch (err) {
     console.error("Erro ao obter data do servidor, usando data local:", err);
-    serverDate = new Date().toISOString().split('T')[0];
   }
 
-  if (lastReset !== serverDate) {
-    credits = 5;
+  // Handle both old date string format "YYYY-MM-DD" and new timestamp format
+  let shouldReset = false;
+  if (!lastReset) {
+    shouldReset = true;
+  } else if (lastReset.includes('-')) {
+    // Old format, reset if it's not today's date (fallback)
+    const todayStr = new Date(serverTimeMs).toISOString().split('T')[0];
+    if (lastReset !== todayStr) shouldReset = true;
+  } else {
+    // New format (timestamp in milliseconds)
+    const lastResetMs = parseInt(lastReset, 10);
+    if (serverTimeMs - lastResetMs >= 24 * 60 * 60 * 1000) {
+      shouldReset = true;
+    }
+  }
+
+  if (shouldReset) {
+    credits = 10;
     await updateDoc(userRef, {
-      aiCreditsRemaining: 5,
-      aiCreditsLastReset: serverDate
+      aiCreditsRemaining: 10,
+      aiCreditsLastReset: serverTimeMs.toString()
     });
   }
 
   if (credits <= 0) {
-    throw new Error("CREDITS_EXHAUSTED: Seu limite diário de 5 análises de IA foi atingido. Ele será renovado amanhã!");
+    throw new Error("CREDITS_EXHAUSTED: Seu limite de 10 análises de IA foi atingido. Ele será renovado 24 horas após o último reset!");
   }
 
   let lastError: any;
@@ -103,11 +135,23 @@ export async function generateContentWithRetry(
 }
 
 /**
- * Checks if the AI service is configured.
+ * Checks if the AI service is configured by pinging a lightweight backend check.
+ * Since the frontend can't safely know if the backend has the key, we assume it's true 
+ * or handle failures gracefully. For now, we return true and let the backend fail if unconfigured.
  */
 export function isAIConfigured(): boolean {
-  return !!(process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY);
+  return true;
 }
+
+// Emulate GoogleGenAI Type enum for existing code
+export const Type = {
+  STRING: "string",
+  NUMBER: "number",
+  INTEGER: "integer",
+  BOOLEAN: "boolean",
+  ARRAY: "array",
+  OBJECT: "object",
+};
 
 export interface CarSpecs {
   name: string;

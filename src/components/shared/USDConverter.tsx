@@ -28,9 +28,9 @@ export function USDConverter({
 
   if (!financeData?.usd) {
     return (
-      <div className={`flex flex-col ${className}`}>
+      <span className={`flex flex-col ${className}`}>
         <span className={usdClassName}>{formatCurrency(valueUsd, 'USD')}</span>
-      </div>
+      </span>
     );
   }
 
@@ -43,50 +43,50 @@ export function USDConverter({
   const valueBrlNet = valueBrlGross * iofConfig;
 
   return (
-    <div 
+    <span 
       className={`relative inline-flex flex-col ${className}`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <div className="flex items-center gap-1">
+      <span className="flex items-center gap-1">
         {showIcon && <DollarSign className="w-3.5 h-3.5 text-emerald-500" />}
         <span className={usdClassName}>{formatCurrency(valueUsd, 'USD')}</span>
-      </div>
-      <div className="flex items-center gap-1 cursor-help">
+      </span>
+      <span className="flex items-center gap-1 cursor-help">
         <span className={brlClassName}>~{formatCurrency(valueBrlNet, 'BRL')}</span>
         <Info className="w-3 h-3 text-muted-foreground/50" />
-      </div>
+      </span>
 
       <AnimatePresence>
         {showTooltip && (
-          <motion.div
+          <motion.span
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 2 }}
             transition={{ duration: 0.15 }}
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-card border border-border shadow-xl rounded-xl p-3 z-[100] text-sm pointer-events-none"
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+            <span className="flex flex-col gap-2">
+              <span className="flex justify-between items-center border-b border-border/50 pb-2">
                 <span className="text-muted-foreground font-medium text-xs">Cotação Atual</span>
                 <span className="font-bold text-emerald-500">{formatCurrency(exchangeRate, 'BRL')}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
+              </span>
+              <span className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">Original (USD)</span>
                 <span className="font-bold">{formatCurrency(valueUsd, 'USD')}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
+              </span>
+              <span className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">IOF Aplicado</span>
                 <span className="font-bold text-amber-500">{iofPercentage}</span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t border-border/50">
+              </span>
+              <span className="flex justify-between items-center pt-2 border-t border-border/50">
                 <span className="text-muted-foreground font-medium text-xs">Aproximado</span>
                 <span className="font-bold">{formatCurrency(valueBrlNet, 'BRL')}</span>
-              </div>
-            </div>
-          </motion.div>
+              </span>
+            </span>
+          </motion.span>
         )}
       </AnimatePresence>
-    </div>
+    </span>
   );
 }

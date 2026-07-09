@@ -48,23 +48,22 @@ const DEFAULT_DATA: FinanceData = {
   brapiTokenSet: false,
 };
 
-// Verifica se o token da Brapi está disponível
-// Funciona tanto em desenvolvimento (server.ts) quanto no Vercel (serverless)
-function checkBrapiToken(): boolean {
-  // 1. Variável exposta pelo Vite para o frontend (VITE_ prefix)
-  if (import.meta.env.VITE_BRAPI_TOKEN) return true;
-  if (process.env.BRAPI_TOKEN) return true;
-  // 2. Variável injetada pelo server.ts
-  if (typeof window !== 'undefined' && (window as any).process?.env?.BRAPI_TOKEN) return true;
-  // 3. Testa diretamente a API da Brapi com um ticker simples
+// Verifica se o token da Brapi está disponível via configuração do servidor
+async function checkBrapiToken(): Promise<boolean> {
+  try {
+    const configRes = await fetch('/api/finance-config');
+    if (configRes.ok) {
+      const config = await configRes.json();
+      return !!config.brapiTokenSet;
+    }
+  } catch (e) {
+    console.error('Failed to check brapi token config:', e);
+  }
   return false;
 }
 
 export async function fetchFinanceData(): Promise<FinanceData> {
   try {
-    // Verifica o token via VITE_ prefix (disponível no frontend no Vercel) ou via injeção do server.ts
-    const clientSideTokenSet = !!import.meta.env.VITE_BRAPI_TOKEN || !!process.env.BRAPI_TOKEN || !!(typeof window !== 'undefined' && (window as any).process?.env?.BRAPI_TOKEN);
-
     // Fetch indicators from our backend proxy to avoid CORS and get real-time data
     const indicatorsRes = await fetch('/api/fin/indicators').catch(() => null);
 
@@ -104,23 +103,7 @@ export async function fetchFinanceData(): Promise<FinanceData> {
       }
     }
 
-    // Tenta verificar via /api/finance-config (funciona em dev local)
-    // Se falhar (Vercel serverless), usa a detecção client-side
-    let serverTokenSet = false;
-    try {
-      const configRes = await fetch('/api/finance-config');
-      if (configRes.ok) {
-        const contentType = configRes.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const config = await configRes.json();
-          serverTokenSet = config.brapiTokenSet;
-        }
-      }
-    } catch {
-      // No Vercel serverless, esta rota pode não existir — ignora
-    }
-
-    const isTokenSet = clientSideTokenSet || serverTokenSet;
+    const isTokenSet = await checkBrapiToken();
 
     return {
       ...DEFAULT_DATA,
@@ -138,7 +121,7 @@ export async function fetchFinanceData(): Promise<FinanceData> {
     console.error('Error fetching finance data:', error);
     return {
       ...DEFAULT_DATA,
-      brapiTokenSet: !!import.meta.env.VITE_BRAPI_TOKEN || !!process.env.BRAPI_TOKEN || !!(typeof window !== 'undefined' && (window as any).process?.env?.BRAPI_TOKEN),
+      brapiTokenSet: false,
     };
   }
 }

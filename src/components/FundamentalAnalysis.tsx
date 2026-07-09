@@ -709,7 +709,7 @@ Apresente uma síntese interpretativa do cenário atual e as perspectivas futura
 
   const generateAnalysis = async (data: any) => {
     if (!isAIConfigured()) {
-      setAnalysis('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente VITE_GEMINI_API_KEY (ou GEMINI_API_KEY) no seu servidor ou em Configurações.');
+      setAnalysis('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente GEMINI_API_KEY no seu servidor ou em Configurações.');
       return;
     }
 
@@ -809,7 +809,7 @@ Responda APENAS em português brasileiro, linguagem acessível para investidores
     setDeepAnalysisData(null);
     
     if (!isAIConfigured()) {
-      setDeepAnalysisError('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente VITE_GEMINI_API_KEY (ou GEMINI_API_KEY) no seu servidor ou em Configurações.');
+      setDeepAnalysisError('A chave da API do Gemini não foi configurada. Por favor, configure a variável de ambiente GEMINI_API_KEY no seu servidor ou em Configurações.');
       setAnalyzingDeep(false);
       return;
     }
@@ -1130,7 +1130,7 @@ INSTRUÇÕES FINAIS:
               {user && (
                 <div className="flex items-center justify-end gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
                   <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
-                  <span>Créditos de IA hoje: <strong className="font-mono text-slate-700 dark:text-slate-300">{profile?.aiCreditsRemaining ?? 5}/5</strong></span>
+                  <span>Créditos de IA (24h): <strong className="font-mono text-slate-700 dark:text-slate-300">{profile?.aiCreditsRemaining ?? 10}/10</strong></span>
                 </div>
               )}
             </div>
